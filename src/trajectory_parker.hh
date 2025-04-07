@@ -20,7 +20,7 @@ namespace Spectrum {
 // #define TRAJ_PARKER_USE_B_DRIFTS
 
 //! Which method of computation to use for divK: 0 = using direct central FD, 1 = using _spdata.grad quantities
-#define TRAJ_PARKER_DIVK_METHOD 0
+#define TRAJ_PARKER_DIVK_METHOD 1
 
 //! Readable name of the TrajectoryParker class
 const std::string traj_name_parker = "TrajectoryParker";

@@ -1,35 +1,18 @@
-Persistent identifier for latest release (archived through Zenodo): [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10994172.svg)](https://doi.org/10.5281/zenodo.10994172)
+# Diffusive Shock Acceleration
 
-# SPECTRUM
+This is a specialization of the SPECTRUM software applied to modeling diffusive shock acceleration. Specifically, the codes in this repository simulate the acceleration of test-particles in the presence of a planar or spherical shock for a variety of diffusion profiles using stochastic methods, analyze the results, and generate useful figures for a future scientific publication. In addition, both forward and backward time-flow approaches are used to solve the relevant equations so their results can be compared and their relative advantages or disadvantes explored.
 
-Space Plasma and Energetic Charged particle TRansport on Unstructured Meshes (SPECTRUM) is a suite of scientific numerical simulation codes designed to efficiently perform test-particle simulations, classical or relativistic, in virtually any astrophysical environment. In addition, ongoing development seeks to extend the utility of SPECTRUM by equipping it with MHD simulation capabilities. 
+## Using the code
 
-## Capabilities
-
-### Test-particle Simulations
-
-SPECTRUM is capable of performing test-particle simulations for a variety of transport models, such as Newton-Lorentz, guiding center (with or without diffusion/scattering), and more. The software was designed with two main purposes in mind. The first is to compute real, physical trajectories of charged particles by specifying their equations of motion subject to known background fields. The second is to solve partial differential equations (PDEs) describing the diffusive transport of particle distribution functions via the *method of stochastic characteristics*. In a nutshell, this is a Monte Carlo (MC) approach that consists in finding a suitable stochastic differential equation (SDE) whose solution has an expected value that solves the PDE in question when weighed appropriately to account for the initial/boundary conditions, sources/sinks, and linear growth terms.
-
-### MHD Simulations
-
-This functionality of SPECTRUM is currently under development.
-
-## Using the Code
-
-### General File Structure
-
-The 'common' directory contains fundamental classes and routines used throughout the software. The 'src' directory contains the source code used for the test-particle simulations. The 'fluid', 'geodesic', and 'geometry' directories hold the code relevant to the MHD simulations (under development). The 'benchmarks' directory houses numerous testing and benchmarking files used to verify certain modules are working properly and gauge the software's performance. The 'tests' directory has test codes used to verify correct installation and proper functioning of different modules. Finally, the 'runs' directory is meant for the user to implement their own simulations. It already features some example files to help the user get started.
-
-### Compiling and Running the Code
-
-SPECTRUM was designed primarily for devices running popular Linux distros, such as Debian or Fedora, and uses the GNU Automake tool for compilation. Note that a C++ compiler (capable of interpreting C++20 or above), a properly installed MPI library (e.g. Open MPI or MPICH), and the GNU Scientic Library (GSL) of mathematical tools are pre-requisites for compiling and running SPECTRUM codes.
-
-To configure the code from a fresh download navigate to the main SPECTRUM directory and execute the following commands in terminal:
-
+Before first use, the code must be configured with autotools. After cloning this repository, execute the configure script in the working directory
 ```
-autoreconf
-automake --add-missing
-./configure <configure-options>
+git clone https://github.com/jgaloguz/Diffusive-Shock-Acceleration
+cd Diffusive-Shock-Acceleration
+./configure.sh <mpi-option> <time-flow>
+where `<mpi-option>` is either `openmpi` or `mpich`, whichever is installed in your system, and `<time-flow>` is either `FORWARD` or `BACKWARD`, depending on which algorithm you want to use to solve the relevant transport equations. You may have to change the permissions of `configure.sh` before you can execute it. You will know the configuration stage ran successfully if a `config.h` file was generated in the working directory.
 ```
 
-The `<configure-options>` are used to specify parameters such as which type of trajectory transport should be simulated or what integration method should be used. Consult the documentation ('Documentation and Tutorial.pdf') for more details.
+
+## Important note
+
+**This is NOT the official SPECTRUM repository.** For information about SPECTRUM, go to https://github.com/vflorins/SPECTRUM.
