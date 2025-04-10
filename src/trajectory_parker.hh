@@ -38,7 +38,7 @@ const double cfl_dif_tp = 0.5;
 const double cfl_acc_tp = 0.5;
 
 //! Maximum allowed fraction of momentum change per step
-const double dlnpmax = 0.01;
+const double dlnpmax = 0.001;
 
 /*!
 \brief A derived class for Parker equation (diffusive simulation)
