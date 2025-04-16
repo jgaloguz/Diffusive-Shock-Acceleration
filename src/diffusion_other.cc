@@ -678,6 +678,8 @@ DiffusionKineticEnergyRadialDistancePowerLaw::DiffusionKineticEnergyRadialDistan
 \date 08/18/2023
 \param [in] construct Whether called from a copy constructor or separately
 
+modified 04/16/2024 by Swati, added dn_stream_idx and r_dn parameters 
+
 This method's main role is to unpack the data container and set up the class data members and status bits marked as "persistent". The function should assume that the data container is available because the calling function will always ensure this.
 */
 void DiffusionKineticEnergyRadialDistancePowerLaw::SetupDiffusion(bool construct)
@@ -690,16 +692,21 @@ void DiffusionKineticEnergyRadialDistancePowerLaw::SetupDiffusion(bool construct
    container.Read(pow_law_T);
    container.Read(pow_law_r);
    container.Read(kap_rat);
+   container.Read(dn_stream_idx);
+   container.Read(r_dn);
 };
 
 /*!
 \author Juan G Alonso Guzman
 \date 08/18/2023
+modified 04/16/2024 by Swati, added dn_stream_idx condition 
 */
 void DiffusionKineticEnergyRadialDistancePowerLaw::EvaluateDiffusion(void)
 {
+   double r = _pos.Norm();
    if (comp_eval == 2) return;
-   Kappa[1] = kap0 * pow(EnrKin(_mom[0], specie) / T0, pow_law_T) * pow(_pos.Norm() / r0, pow_law_r);
+   if (dn_stream_idx = 0) Kappa[1] = kap0 * pow(EnrKin(_mom[0], specie) / T0, pow_law_T) * pow(r / r0, pow_law_r);
+   else Kappa[1] = ( r < r_dn ? kap0 * pow(EnrKin(_mom[0], specie) / T0, pow_law_T) * pow(r / r0, pow_law_r): kap0); 
    Kappa[0] = kap_rat * Kappa[1];
 };
 
