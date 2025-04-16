@@ -468,6 +468,7 @@ const std::string diff_name_kinetic_energy_radial_distance_power_law = "Diffusio
 \author Vladimir Florinski
 
 Parameters: (DiffusionBase), double kap0, double T0, double r0, double pow_law_T, double pow_law_r, double kap_rat
+modified 04/16/2024 by Swati, added parameter: double upstream_idx
 */
 class DiffusionKineticEnergyRadialDistancePowerLaw : public DiffusionBase {
 
@@ -490,7 +491,13 @@ protected:
 
 //! Ratio of perpendicular to parallel diffusion (persistent)
    double kap_rat;
+   
+//! downstream index, if upstream diffusion is in symmetry with the downstream diffusion the index is "0" otherwise index is"1" (persistent)
+   double dn_stream_idx;
 
+//! distance of the downstream flow (persistent)
+   double r_dn;
+   
 //! Set up the diffusion model based on "params"
    void SetupDiffusion(bool construct) override;
 
