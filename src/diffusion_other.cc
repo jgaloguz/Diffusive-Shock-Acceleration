@@ -686,14 +686,14 @@ void DiffusionKineticEnergyRadialDistancePowerLaw::SetupDiffusion(bool construct
 {
 // The parent version must be called explicitly if not constructing
    if (!construct) DiffusionBase::SetupDiffusion(false);
+   container.Read(dn_stream_idx);
+   container.Read(r_dn);
    container.Read(kap0);
    container.Read(T0);
    container.Read(r0);
    container.Read(pow_law_T);
    container.Read(pow_law_r);
    container.Read(kap_rat);
-   container.Read(dn_stream_idx);
-   container.Read(r_dn);
 };
 
 /*!
@@ -703,10 +703,10 @@ modified 04/16/2024 by Swati, added dn_stream_idx condition
 */
 void DiffusionKineticEnergyRadialDistancePowerLaw::EvaluateDiffusion(void)
 {
-   double r = _pos.Norm();
+   double rp = _pos.Norm();
    if (comp_eval == 2) return;
-   if (dn_stream_idx = 0) Kappa[1] = kap0 * pow(EnrKin(_mom[0], specie) / T0, pow_law_T) * pow(r / r0, pow_law_r);
-   else Kappa[1] = ( r < r_dn ? kap0 * pow(EnrKin(_mom[0], specie) / T0, pow_law_T) * pow(r / r0, pow_law_r): kap0); 
+    if (dn_stream_idx == 0.0) Kappa[1] = kap0 * pow(EnrKin(_mom[0], specie) / T0, pow_law_T) * pow(rp / r0, pow_law_r);
+     else Kappa[1] = ( rp < r_dn ? kap0 * pow(EnrKin(_mom[0], specie) / T0, pow_law_T) * pow(rp / r0, pow_law_r): kap0 ); 
    Kappa[0] = kap_rat * Kappa[1];
 };
 
@@ -719,9 +719,20 @@ void DiffusionKineticEnergyRadialDistancePowerLaw::EvaluateDiffusion(void)
 */
 double DiffusionKineticEnergyRadialDistancePowerLaw::GetDirectionalDerivative(int xyz)
 {
+   double rp = _pos.Norm();
 // Note that this doesn't work near the origin where the radial distance is close to zero.
-   if ((0 <= xyz) && (xyz <= 2)) return Kappa[comp_eval] * pow_law_r * _pos[xyz] / Sqr(_pos.Norm());
-   else return 0.0;
+ if ((0 <= xyz) && (xyz <= 2))      {
+        if (dn_stream_idx == 0.0) {
+            return Kappa[comp_eval] * pow_law_r * _pos[xyz] / Sqr(rp);
+        }        
+        else {
+            if (rp < r_dn) {
+                return Kappa[comp_eval] * pow_law_r * _pos[xyz] / Sqr(rp);
+            }
+            else return 0.0;
+        }
+    }
+        return 0.0;
 };
 
 /*!
