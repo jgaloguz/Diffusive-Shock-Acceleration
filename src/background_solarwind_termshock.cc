@@ -60,28 +60,88 @@ void BackgroundSolarWindTermShock::SetupBackground(bool construct)
 
 /*!
 \author Juan G Alonso Guzman
-\date 03/14/2024
+\date 05/19/2025
+\param [in] r radial distance
+\return Relative value of radial speed
+*/
+double BackgroundSolarWindTermShock::TermShockTransition(double r)
+{
+   double y = (r - r_TS) / w_TS;
+#if SMOOTH_TERM_SHOCK_ORDER == 0 // continous but not differentiable
+   if (y < 0.0) return 0.0;
+   else if (y > 1.0) return 1.0;
+   else return y;
+#elif SMOOTH_TERM_SHOCK_ORDER == 1 // differentiable
+   if (y < 0.0) return 0.0;
+   else if (y > 1.0) return 1.0;
+   else return Sqr(y) * (3.0 - 2.0 * y);
+#elif SMOOTH_TERM_SHOCK_ORDER == 2 // twice differentiable
+   if (y < 0.0) return 0.0;
+   else if (y > 1.0) return 1.0;
+   else return Cube(y) * (10.0 - 15.0 * y + 6.0 * Sqr(y));
+#elif SMOOTH_TERM_SHOCK_ORDER == 3 // thrice differentiable
+   if (y < 0.0) return 0.0;
+   else if (y > 1.0) return 1.0;
+   else return Sqr(Sqr(y)) * (35.0 - 84.0 * y + 70.0 * Sqr(y) - 20.0 * Cube(y));
+#else // smooth
+   return 0.5 * (1.0 + tanh(tanh_width_factor * (y - 0.5)));
+#endif
+};
+
+/*!
+\author Juan G Alonso Guzman
+\date 05/19/2025
+\param [in] r radial distance
+\return Derivative of relative value of radial speed
+*/
+double BackgroundSolarWindTermShock::TermShockTransitionDerivative(double r)
+{
+   double y = (r - r_TS) / w_TS;
+#if SMOOTH_TERM_SHOCK_ORDER == 0
+   if (y < 0.0) return 0.0;
+   else if (y > 1.0) return 0.0;
+   else return 1.0;
+#elif SMOOTH_TERM_SHOCK_ORDER == 1
+   if (y < 0.0) return 0.0;
+   else if (y > 1.0) return 0.0;
+   else return 6.0 * y * (1.0 - y);
+#elif SMOOTH_TERM_SHOCK_ORDER == 2
+   if (y < 0.0) return 0.0;
+   else if (y > 1.0) return 0.0;
+   else return 30.0 * Sqr(y) * (1.0 - 2.0 * y + Sqr(y));
+#elif SMOOTH_TERM_SHOCK_ORDER == 3
+   if (y < 0.0) return 0.0;
+   else if (y > 1.0) return 0.0;
+   else return 140.0 * Cube(y) * (1.0 - 3.0 * y + 3.0 * Sqr(y) - 1.0 * Cube(y));
+#else
+   return 0.5 * tanh_width_factor * (1.0 - Sqr(tanh(tanh_width_factor * (y - 0.5))));
+#endif
+};
+
+/*!
+\author Juan G Alonso Guzman
+\date 05/19/2025
 \param[in]  r      radial distance
 \param[out] ur_mod modified radial flow
 */
 void BackgroundSolarWindTermShock::ModifyUr(const double r, double &ur_mod)
 {
-   if (r >= r_TS) {
+if (r >= r_TS) {
 #if SOLARWIND_TERMSHOCK_SPEED_EXPONENT == 1
       if (r > r_TS + w_TS) ur_mod *= s_TS_inv * (r_TS + w_TS) / r;
 #elif SOLARWIND_TERMSHOCK_SPEED_EXPONENT == 2
-      if (r >= r_TS + w_TS) ur_mod *= s_TS_inv * Sqr((r_TS + w_TS) / r);
+      if (r > r_TS + w_TS) ur_mod *= s_TS_inv * Sqr((r_TS + w_TS) / r);
 #else
       if (r > r_TS + w_TS) ur_mod *= s_TS_inv;
 #endif
-      else ur_mod *= 1.0 + (s_TS_inv - 1.0) * (r - r_TS) / w_TS;
+      else ur_mod *= 1.0 + (s_TS_inv - 1.0) * TermShockTransition(r);
    };
 };
 
 /*!
 \author Juan G Alonso Guzman
 \author Swati Sharma
-\date 04/30/2025
+\date 05/19/2025
 \param[in]  r      radial distance
 */
 double BackgroundSolarWindTermShock::dUrdr(const double r)
@@ -94,9 +154,9 @@ double BackgroundSolarWindTermShock::dUrdr(const double r)
 #else
       if (r > r_TS + w_TS) return 0.0;
 #endif
-      else return (s_TS_inv - 1.0) * (1.0 / w_TS) * ur0;
+      else ur0 * (s_TS_inv - 1.0) * TermShockTransitionDerivative(r)
 };
-   return 0.0;
+   else return 0.0;
 };
 
 /*!
