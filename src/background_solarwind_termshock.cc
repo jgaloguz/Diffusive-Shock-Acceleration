@@ -80,9 +80,9 @@ void BackgroundSolarWindTermShock::ModifyUr(const double r, double &ur_mod)
 
 /*!
 \author Juan G Alonso Guzman
-\date 02/03/2025
+\author Swati Sharma
+\date 04/30/2025
 \param[in]  r      radial distance
-modified by Swati date 04/30/2025
 */
 double BackgroundSolarWindTermShock::dUrdr(const double r)
 {
@@ -119,8 +119,8 @@ double BackgroundSolarWindTermShock::TimeLag(const double r)
 
 /*!
 \author Juan G Alonso Guzman
-\date 02/22/2023
-modified by Swati date 04/30/2025
+\author Swati Sharma
+\date 04/30/2025
 */
 void BackgroundSolarWindTermShock::EvaluateBackgroundDerivatives(void)
 {

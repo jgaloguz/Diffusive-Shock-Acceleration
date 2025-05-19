@@ -466,9 +466,9 @@ const std::string diff_name_kinetic_energy_radial_distance_power_law = "Diffusio
 \brief Full (perpendicular + parallel) diffusion, kinetic energy and radial distance power law
 \author Juan G Alonso Guzman
 \author Vladimir Florinski
+\author Swati Sharma
 
-Parameters: (DiffusionBase), double kap0, double T0, double r0, double pow_law_T, double pow_law_r, double kap_rat
-modified 04/16/2024 by Swati, added parameter: double upstream_idx
+Parameters: (DiffusionBase), double dn_stream_idx, double r_dn, double kap0, double T0, double r0, double pow_law_T, double pow_law_r, double kap_rat
 */
 class DiffusionKineticEnergyRadialDistancePowerLaw : public DiffusionBase {
 
