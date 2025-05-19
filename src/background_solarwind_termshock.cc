@@ -90,7 +90,7 @@ double BackgroundSolarWindTermShock::dUrdr(const double r)
 #if SOLARWIND_TERMSHOCK_SPEED_EXPONENT == 1
       if (r > r_TS + w_TS) return -_spdata.Uvec.Norm() / r;
 #elif SOLARWIND_TERMSHOCK_SPEED_EXPONENT == 2
-      if (r > r_TS + w_TS) return -2.0 * s_TS_inv * Sqr((r_TS + w_TS) / r) * ur0 / r;
+      if (r > r_TS + w_TS) return -2.0 * _spdata.Uvec.Norm() / r;
 #else
       if (r > r_TS + w_TS) return 0.0;
 #endif
