@@ -80,9 +80,9 @@ void BackgroundSolarWindTermShock::ModifyUr(const double r, double &ur_mod)
 
 /*!
 \author Juan G Alonso Guzman
-\date 02/03/2025
+\author Swati Sharma
+\date 04/30/2025
 \param[in]  r      radial distance
-modified by Swati date 04/30/2025
 */
 double BackgroundSolarWindTermShock::dUrdr(const double r)
 {
@@ -90,7 +90,7 @@ double BackgroundSolarWindTermShock::dUrdr(const double r)
 #if SOLARWIND_TERMSHOCK_SPEED_EXPONENT == 1
       if (r > r_TS + w_TS) return -_spdata.Uvec.Norm() / r;
 #elif SOLARWIND_TERMSHOCK_SPEED_EXPONENT == 2
-      if (r > r_TS + w_TS) return -2.0 * s_TS_inv * Sqr((r_TS + w_TS) / r) * ur0 / r;
+      if (r > r_TS + w_TS) return -2.0 * _spdata.Uvec.Norm() / r;
 #else
       if (r > r_TS + w_TS) return 0.0;
 #endif
@@ -119,8 +119,8 @@ double BackgroundSolarWindTermShock::TimeLag(const double r)
 
 /*!
 \author Juan G Alonso Guzman
-\date 02/22/2023
-modified by Swati date 04/30/2025
+\author Swati Sharma
+\date 04/30/2025
 */
 void BackgroundSolarWindTermShock::EvaluateBackgroundDerivatives(void)
 {
