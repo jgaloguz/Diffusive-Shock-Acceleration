@@ -126,7 +126,7 @@ double BackgroundSolarWindTermShock::TermShockTransitionDerivative(double r)
 */
 void BackgroundSolarWindTermShock::ModifyUr(const double r, double &ur_mod)
 {
-if (r >= r_TS) {
+   if (r >= r_TS) {
 #if SOLARWIND_TERMSHOCK_SPEED_EXPONENT == 1
       if (r > r_TS + w_TS) ur_mod *= s_TS_inv * (r_TS + w_TS) / r;
 #elif SOLARWIND_TERMSHOCK_SPEED_EXPONENT == 2
@@ -155,7 +155,7 @@ double BackgroundSolarWindTermShock::dUrdr(const double r)
       if (r > r_TS + w_TS) return 0.0;
 #endif
       else ur0 * (s_TS_inv - 1.0) * TermShockTransitionDerivative(r) / w_TS;
-};
+   }
    else return 0.0;
 };
 
