@@ -154,7 +154,7 @@ double BackgroundSolarWindTermShock::dUrdr(const double r)
 #else
       if (r > r_TS + w_TS) return 0.0;
 #endif
-      else ur0 * (s_TS_inv - 1.0) * TermShockTransitionDerivative(r);
+      else ur0 * (s_TS_inv - 1.0) * TermShockTransitionDerivative(r) / w_TS;
 };
    else return 0.0;
 };
