@@ -53,7 +53,7 @@ where no options are needed in this case.
 
 The `runs/params.dat` file contains the parameters that control the simulation execution and output.
 The first parameter controls maximum spatial displacement per step for the trajectories away from the shock.
-The second parameter controls the width the of the shock encountered by the particles.
+The second parameter controls the width of the shock encountered by the particles.
 The third parameter controls maximum spatial displacement per step for the trajectories near the shock.
 The fourth parameter controls the initial spatial location of the particles for the backward runs.
 
