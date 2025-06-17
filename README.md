@@ -14,9 +14,9 @@ where `<mpi-option>` is either `openmpi` or `mpich`, whichever is installed in y
 
 **Planar Shock**
 
-To compile and run code, first navigate to the `runs` subdirectory
+After a successful configuration, to compile and run code, first navigate to the `runs_planar_shock` subdirectory
 ```
-cd runs
+cd runs_planar_shock
 ```
 To obtain analytic results in the case of a planar shock with a diffusion coefficient that is proportional to the square of the flow speed, compile and run the code using
 ```
@@ -41,9 +41,9 @@ Similarly, for backward-in-time simulations, configure the code using the `BACKW
 Compile and run the code using
 ```
 make dsa_backward
-mpirun -np <N> dsa_backward <number-of-trajectories> <batch-size>
+mpirun -np <N> dsa_backward <number-of-trajectories> <batch-size> <time-index>
 ```
-where the options mean the same as in the forward-in-time runs.
+where the first two options mean the same as in the forward-in-time runs and the third is the index of the time within the common time array at which to initialize the pseudo-particles.
 The results can be post-processed with the command
 ```
 make dsa_backward_postprocess
@@ -51,11 +51,11 @@ make dsa_backward_postprocess
 ```
 where no options are needed in this case.
 
-The `runs/params.dat` file contains the parameters that control the simulation execution and output.
-The first parameter controls maximum spatial displacement per step for the trajectories away from the shock.
-The second parameter controls the width of the shock encountered by the particles.
-The third parameter controls maximum spatial displacement per step for the trajectories near the shock.
-The fourth parameter controls the initial spatial location of the particles for the backward runs.
+The `params.dat` file contains the parameters that control the simulation execution and output.
+The first parameter equals the maximum spatial displacement per step for the trajectories away from the shock in units of au.
+The second parameter equals the width of the shock in units of au.
+The third parameter equals the maximum spatial displacement per step for the trajectories near the shock as a fraction of the first parameter.
+The fourth parameter equals the initial spatial location of the pseudo-particles for the backward runs as a factor of `z_shock`, which is the location of the bin center closest to the origin on the downstream region.
 
 All results are stored in the `runs/dsa_results` folder.
 They can be visualized by running a Python script
@@ -63,6 +63,13 @@ They can be visualized by running a Python script
 python dsa_plots.py <which-time-flow>
 ```
 where `<which-time-flow>` is either `forward` or `backward`, depending on which result you want to compare with analytic results.
+
+**Spherical Shock**
+
+After a successful configuration, to compile and run code, first navigate to the `runs_spherical_shock` subdirectory
+```
+cd runs_spherical_shock
+```
 
 ## Important note
 

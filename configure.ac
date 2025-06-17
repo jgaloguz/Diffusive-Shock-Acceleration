@@ -3,7 +3,7 @@
 # Building from zero:
 # autoreconf
 # automake --add-missing
-# ./configure CXXFLAGS="-O0 -g" --with-mpi=openmpi --enable-silo --with-execution=PARALLEL --with-trajectory=FIELDLINE --with-time_flow=FORWARD --with-rkmethod=0 --with-server=BATL --with-server_interp_order=1 --with-server_num_gcs=1
+# ./configure CXXFLAGS="-Ofast" --with-mpi=openmpi --enable-silo --with-execution=PARALLEL --with-trajectory=PARKER --with-time_flow=FORWARD --with-rkmethod=0 --with-server=SELF
 
 # Init commands
 AC_PREREQ([2.69])
@@ -167,7 +167,7 @@ AS_IF([test "x$enable_cuda" == "xyes"],
       [AC_MSG_NOTICE([CUDA is disabled])])
 
 # Files to generate
-AC_CONFIG_FILES([Makefile runs/Makefile])
+AC_CONFIG_FILES([Makefile runs_planar_shock/Makefile runs_spherical_shock/Makefile])
 
 AC_OUTPUT
 

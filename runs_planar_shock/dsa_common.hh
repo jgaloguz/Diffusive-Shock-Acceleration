@@ -47,7 +47,7 @@ double z_arr[Nz];
 double z_shock;
 double t_arr[Nt];
 
-const int N_params = 3;
+const int N_params = 4;
 double params[N_params];
 std::ifstream params_file;
 
@@ -74,7 +74,7 @@ void DefineArrays(void)
 void ReadParams(void)
 {
    params_file.open("params.dat");
-   for (int i = 0; i <= N_params; i++) params_file >> params[i];
+   for (int i = 0; i < N_params; i++) params_file >> params[i];
    params_file.close();
 }
 

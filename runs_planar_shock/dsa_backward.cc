@@ -96,7 +96,10 @@ int main(int argc, char** argv)
 
 // Time to obtain solution
    int t_idx = 0;
-   if(argc > 3) t_idx = atoi(argv[3]);
+   if(argc > 3) {
+      t_idx = atoi(argv[3]);
+      if(t_idx >= Nt) t_idx = Nt - 1;
+   };
    container.Insert(t_arr[t_idx]);
 
    simulation->AddInitial(InitialTimeFixed(), container);
