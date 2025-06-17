@@ -679,8 +679,6 @@ DiffusionKineticEnergyRadialDistancePowerLaw::DiffusionKineticEnergyRadialDistan
 \date 04/16/2024
 \param [in] construct Whether called from a copy constructor or separately
 
-modified  by Swati, added dn_stream_idx and r_dn parameters 
-
 This method's main role is to unpack the data container and set up the class data members and status bits marked as "persistent". The function should assume that the data container is available because the calling function will always ensure this.
 */
 void DiffusionKineticEnergyRadialDistancePowerLaw::SetupDiffusion(bool construct)
