@@ -676,7 +676,7 @@ DiffusionKineticEnergyRadialDistancePowerLaw::DiffusionKineticEnergyRadialDistan
 /*!
 \author Juan G Alonso Guzman
 \author Swati Sharma
-\date 04/16/2024
+\date 06/25/2025
 \param [in] construct Whether called from a copy constructor or separately
 
 This method's main role is to unpack the data container and set up the class data members and status bits marked as "persistent". The function should assume that the data container is available because the calling function will always ensure this.
@@ -685,27 +685,30 @@ void DiffusionKineticEnergyRadialDistancePowerLaw::SetupDiffusion(bool construct
 {
 // The parent version must be called explicitly if not constructing
    if (!construct) DiffusionBase::SetupDiffusion(false);
-   container.Read(dn_stream_idx);
-   container.Read(r_dn);
    container.Read(kap0);
    container.Read(T0);
    container.Read(r0);
    container.Read(pow_law_T);
    container.Read(pow_law_r);
    container.Read(kap_rat);
+   container.Read(stream_dep_idx);
+   container.Read(u_up);
+   container.Read(r_sh);
+   container.Read(w_sh);
 };
 
 /*!
 \author Juan G Alonso Guzman
 \author Swati Sharma
-\date 04/16/2024
+\date 06/25/2025
 */
 void DiffusionKineticEnergyRadialDistancePowerLaw::EvaluateDiffusion(void)
 {
-   double rp = _pos.Norm();
+   double r = _pos.Norm();
+   double y = (r - r_sh) / w_sh;
    if (comp_eval == 2) return;
-    if (dn_stream_idx == 0.0) Kappa[1] = kap0 * pow(EnrKin(_mom[0], specie) / T0, pow_law_T) * pow(rp / r0, pow_law_r);
-     else Kappa[1] = ( rp < r_dn ? kap0 * pow(EnrKin(_mom[0], specie) / T0, pow_law_T) * pow(rp / r0, pow_law_r): kap0 ); 
+   if (stream_dep_idx == 0 || r < r_sh) Kappa[1] = kap0 * pow(EnrKin(_mom[0], specie) / T0, pow_law_T) * pow(r / r0, pow_law_r);
+   else Kappa[1] = kap0 * pow(EnrKin(_mom[0], specie) / T0, pow_law_T) * Sqr(_spdata.Uvec.Norm() / u_up);
    Kappa[0] = kap_rat * Kappa[1];
 };
 
@@ -718,15 +721,15 @@ void DiffusionKineticEnergyRadialDistancePowerLaw::EvaluateDiffusion(void)
 */
 double DiffusionKineticEnergyRadialDistancePowerLaw::GetDirectionalDerivative(int xyz)
 {
-   double rp = _pos.Norm();
+   double r = _pos.Norm();
 // Note that this doesn't work near the origin where the radial distance is close to zero.
  if ((0 <= xyz) && (xyz <= 2))      {
-        if (dn_stream_idx == 0.0) {
-            return Kappa[comp_eval] * pow_law_r * _pos[xyz] / Sqr(rp);
+        if (stream_dep_idx == 0.0) {
+            return Kappa[comp_eval] * pow_law_r * _pos[xyz] / Sqr(r);
         }        
         else {
-            if (rp < r_dn) {
-                return Kappa[comp_eval] * pow_law_r * _pos[xyz] / Sqr(rp);
+            if (r < r_sh) {
+                return Kappa[comp_eval] * pow_law_r * _pos[xyz] / Sqr(r);
             }
             else return 0.0;
         }

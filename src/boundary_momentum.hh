@@ -59,7 +59,7 @@ public:
 // BoundaryMomentumInject class declaration
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 
-//! Readable name of the BoundaryMomentum class
+//! Readable name of the BoundaryMomentumInject class
 const std::string bnd_name_momentum_inject = "BoundaryMomentumInject";
 
 /*!
@@ -88,6 +88,41 @@ public:
 
 //! Clone function
    CloneFunctionBoundary(BoundaryMomentumInject);
+};
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+// BoundaryMomentumPass class declaration
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+//! Readable name of the BoundaryMomentumPass class
+const std::string bnd_name_momentum_pass = "BoundaryMomentumPass";
+
+/*!
+\brief Passive momentum boundary
+\author Juan G Alonso Guzman
+
+Parameters: (BoundaryMomentum)
+*/
+class BoundaryMomentumPass : public BoundaryMomentum {
+
+protected:
+
+//! Set up the boundary evaluator based on "params"
+   void SetupBoundary(bool construct) override;
+
+public:
+
+//! Default constructor
+   BoundaryMomentumPass(void);
+
+//! Copy constructor
+   BoundaryMomentumPass(const BoundaryMomentumPass& other);
+
+//! Destructor
+   ~BoundaryMomentumPass() override = default;
+
+//! Clone function
+   CloneFunctionBoundary(BoundaryMomentumPass);
 };
 
 #if (TRAJ_TYPE != TRAJ_PARKER) && (TRAJ_TYPE != TRAJ_FIELDLINE)

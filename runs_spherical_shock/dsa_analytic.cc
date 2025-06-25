@@ -6,79 +6,81 @@
 
 using namespace Spectrum;
 
-// Phase-space density upstream
-inline double N1(double z, double p, double t)
+// Phase-space density upstream AND downstream
+double N12(double r, double p)
 {
-   double a = pow(p0 / p, beta);
-   double b = 2.0 * z / (tau * U_up);
-   double c = sqrt(t / tau);
-   double d = 0.5 * beta / c * log(p / p0) - z / (sqrt(t * tau) * U_up);
-   return amp * sqrt(Cube(p0 / p)) * exp(U_up * z / (2.0 * kappa_up)) * (exp(b) * erfc(d - c) * a + exp(-b) * erfc(d + c) / a);
-};
+   double p1, p2, r1, r2, arg_p, arg_r, cef1, cef2, f;
 
-// Phase-space density downstream
-inline double N2(double z, double p, double t)
-{
-   double a = pow(p0 / p, beta);
-   double b = 2.0 * z / (tau * U_dn);
-   double c = sqrt(t / tau);
-   double d = 0.5 * beta / c * log(p / p0) + z / (sqrt(t * tau) * U_dn);
-   return amp * sqrt(Cube(p0 / p)) * exp(U_dn * z / (2.0 * kappa_dn)) * (exp(-b) * erfc(d - c) * a + exp(b) * erfc(d + c) / a);
+   p1 = pow(p / p_inj, 3.0 * (Sqr(xi) - Sqr(zeta1)) / (2.0 * eta_up));
+   p2 = pow(p / p_inj, 3.0 * (Sqr(xi) - Sqr(zeta2)) / (2.0 * eta_up));
+
+   if (r < R_sh) {
+      r1 = pow(r / R_sh, xi - zeta1);
+      r2 = pow(r / R_sh, xi - zeta2);
+      arg_r = sqrt(eta_up / (6.0 * log(p_inj / p))) * log(R_sh / r);
+   }
+   else {
+      r1 = (1.0 - exp(-eta_dn * R_sh / r)) / (1.0 - exp(-eta_dn));
+      r2 = r1;
+      arg_r = 0.0;
+   };
+   arg_p = sqrt(3.0 / (2.0 * eta_up) * log(p_inj / p));
+
+   if (p < p_inj) {
+      cef1 = 1.0 - erf(zeta1 * arg_p + arg_r);
+      cef2 = 1.0 + erf(zeta2 * arg_p + arg_r);
+      f = -(zeta1 * r1 * p1 * cef1 + zeta2 * r2 * p2 * cef2);
+   }
+   else {
+      f = -2.0 * zeta2 * r2 * p2;
+   };
+
+   return amp * f;
 };
 
 // Integral in momentum
-double MomentumIntegral(double z, double t)
+double MomentumIntegral(double r)
 {
    int i;
    double S = 0.0;
-   if (z < 0.0) {
-      for (i = 0; i < Np; i++) S += N1(z, p_arr[i], t) * Sqr(p_arr[i]) * dp_arr[i];
-   }
-   else {
-      for (i = 0; i < Np; i++) S += N2(z, p_arr[i], t) * Sqr(p_arr[i]) * dp_arr[i];
-   };
+   for (i = 0; i < Np; i++) S += N12(r, p_arr[i]) * Sqr(p_arr[i]) * dp_arr[i];
    return S * M_4PI;
 };
 
 int main(int argc, char** argv)
 {
-   int i,j;
+   int i = Nt-1, j;
    std::ofstream dsa_analytic_file;
 
 // Define initialize momentum, position, and time arrays
    DefineArrays();
    ReadParams();
-   std::cout << "z_shock = " << z_shock << std::endl;
+   std::cout << "r_shock = " << r_shock << std::endl;
    std::cout << "t_acc = " << tau << std::endl;
 
-// Loop over times
-   for (i = 0; i < Nt; i++) {
 // Number density vs position (integrate over momentum)
-      dsa_analytic_file.open("dsa_results/dsa_analytic_pos_" + std::to_string(i) + ".dat");
+   dsa_analytic_file.open("dsa_results/dsa_analytic_pos_" + std::to_string(i) + ".dat");
 // Loop over spatial positions
-      for (j = 0; j < Nz; j++) {
+   for (j = 0; j < Nr; j++) {
 // Output to file
-         dsa_analytic_file << std::setw(16) << z_arr[j]
-                           << std::setw(16) << MomentumIntegral(z_arr[j], t_arr[i])
-                           << std::endl;
-      };
-      dsa_analytic_file.close();
-// Spectrum vs momentum near shock
-      dsa_analytic_file.open("dsa_results/dsa_analytic_mom_" + std::to_string(i) + ".dat");
-// Loop over momentum
-      for (j = 0; j < Np; j++) {
-// Output to file
-         dsa_analytic_file << std::setw(16) << p_arr[j]
-                           << std::setw(16) << N2(params[3] * z_shock, p_arr[j], t_arr[i]) * M_4PI * Sqr(p_arr[j])
-                           << std::endl;
-      };
-      dsa_analytic_file.close();
+      dsa_analytic_file << std::setw(16) << r_arr[j]
+                        << std::setw(16) << MomentumIntegral(r_arr[j])
+                        << std::endl;
    };
-
-// Output times
-   dsa_analytic_file.open("dsa_results/dsa_analytic_time.dat");
-   for (i = 0; i < Nt; i++) dsa_analytic_file << std::setw(16) << t_arr[i] << std::endl;
    dsa_analytic_file.close();
+// Spectrum vs momentum near shock
+   dsa_analytic_file.open("dsa_results/dsa_analytic_mom_" + std::to_string(i) + ".dat");
+// Loop over momentum
+   for (j = 0; j < Np; j++) {
+// Output to file
+      dsa_analytic_file << std::setw(16) << p_arr[j]
+                        << std::setw(16) << N12(params[3] * r_shock, p_arr[j]) * M_4PI * Sqr(p_arr[j])
+                        << std::endl;
+   };
+   dsa_analytic_file.close();
+
+// Output time
+   std::cout << "t_final = " << t_arr[i] << std::endl;
 
    return 0;
 };

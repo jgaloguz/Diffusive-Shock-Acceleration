@@ -1,0 +1,13 @@
+## Residual files after `make distclean` ##
+
+Makefile.in
+aclocal.m4
+autom4te.cache/
+compile
+config.h.in
+configure
+depcomp
+install-sh
+missing
+runs_planar_shock/Makefile.in
+runs_spherical_shock/Makefile.in

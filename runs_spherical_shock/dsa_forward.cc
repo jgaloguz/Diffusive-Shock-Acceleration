@@ -1,8 +1,9 @@
 #include "src/simulation.hh"
 #include "src/distribution_other.hh"
-#include "src/background_smooth_shock.hh"
+#include "src/background_solarwind_termshock.hh"
 #include "src/diffusion_other.hh"
 #include "src/boundary_time.hh"
+#include "src/boundary_space.hh"
 #include "src/initial_time.hh"
 #include "src/initial_space.hh"
 #include "src/initial_momentum.hh"
@@ -49,42 +50,39 @@ int main(int argc, char** argv)
    container.Insert(u0);
 
 // Upstream magnetic field
-   double B_up = 5.0e-7 / unit_magnetic_fluid;
-   GeoVector B0(B_up, 0.0, 0.0);
+   double RS = 6.957e10 / unit_length_fluid;
+   double r_ref = 3.0 * RS;
+   double BmagE = 5.0e-5 / unit_magnetic_fluid;
+   double Bmag_ref = BmagE * Sqr((GSL_CONST_CGSM_ASTRONOMICAL_UNIT / unit_length_fluid) / r_ref);
+   GeoVector B0(Bmag_ref, 0.0, 0.0);
    container.Insert(B0);
 
 // Maximum displacement
    double dmax = params[0] * one_au;
    container.Insert(dmax);
 
-// Shock starting position
-   container.Insert(gv_zeros);
+// Solar rotation vector
+   GeoVector Omega(0.0, 0.0, 0.0);
+   container.Insert(Omega);
 
-// Shock normal
-   GeoVector n_shock (-1.0, 0.0, 0.0);
-   container.Insert(n_shock);
-
-// Shock velocity
-   double v_shock = 0.0;
-   container.Insert(v_shock);
-
-// Downstream velocity
-   GeoVector u1 (U_dn, 0.0, 0.0);
-   container. Insert(u1);
-
-// Downstream magnetic field
-   double B_dn = B_up * s;   
-   container. Insert(B_dn);
-
-// Shock width
-   double width_shock = params[1] * one_au;
-   container.Insert(width_shock);
+// Reference equatorial distance
+   container.Insert(r_ref);
 
 // dmax fraction
    double dmax_fraction = params[2];
    container.Insert(dmax_fraction);
 
-   simulation->AddBackground(BackgroundSmoothShock(), container);
+// Spherical shock radius
+   container.Insert(R_sh); 
+
+// Spherical shock width
+   double w_sh = params[1] * one_au;
+   container.Insert(w_sh);
+   
+// Spherical shock strength
+   container.Insert(s);
+
+   simulation->AddBackground(BackgroundSolarWindTermShock(), container);
 
 //--------------------------------------------------------------------------------------------------
 // Time initial condition
@@ -111,7 +109,7 @@ int main(int argc, char** argv)
    container.Clear();
 
 // Lower bound for position
-   GeoVector init_pos(0.0, 0.0, 0.0);
+   GeoVector init_pos(R_sh + 0.5 * w_sh, 0.0, 0.0);
    container.Insert(init_pos);
 
    simulation->AddInitial(InitialSpaceFixed(), container);
@@ -126,6 +124,31 @@ int main(int argc, char** argv)
    container.Insert(p0);
 
    simulation->AddInitial(InitialMomentumShell(), container);
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+// Spatial Inner boundary
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+   container.Clear();
+
+// Max crossings
+   int max_crossings_Sun = 1;
+   container.Insert(max_crossings_Sun);
+
+// Action Vector
+   std::vector<int> actions_Sun;
+   actions_Sun.push_back(-1);
+   for (i = 0; i < Nt; i++) actions_Sun.push_back(-1);
+   container.Insert(actions_Sun);
+
+// Origin
+   container.Insert(gv_zeros);
+
+// Radius
+   double inner_boundary = 1.0 * one_au;
+   container.Insert(inner_boundary);
+
+   simulation->AddBoundary(BoundarySphereAbsorb(), container);
 
 //--------------------------------------------------------------------------------------------------
 // Time check-points
@@ -186,26 +209,35 @@ int main(int argc, char** argv)
 // Reference diffusion coefficient
    container.Insert(kappa_up);
 
-// Normalization of bulk velocity
-   container.Insert(U_up);
+// Normalization of kinetic energy
+   double T0 = one_MeV;
+   container.Insert(T0);
 
-// Power of bulk velocity dependance
-   double power_law_U = 2.0;
-   container.Insert(power_law_U);
+// Normalization of radius
+   container.Insert(R_sh);
 
-// Normalization of particle momentum
-   double p_0 =  0.1 * mass[specie] * c_code;
-   container.Insert(p_0);
-
-// Power of particle momentum dependance
-   double power_law_p = 0.0;
-   container.Insert(power_law_p);
+// Power of kinetic energy dependance
+   double power_law_T = 0.0;
+   container.Insert(power_law_T);
 
 // Ratio of perpendicular to parallel diffusion
    double kap_rat = 0.0;
    container.Insert(kap_rat);
 
-   simulation->AddDiffusion(DiffusionFlowMomentumPowerLaw(), container);
+// Downstream dependance index
+   int stream_dep_idx = 1;
+   container.Insert(stream_dep_idx);
+
+// Upstream flow at the start of shock
+   container.Insert(U_up);
+
+// Shock position
+   container.Insert(R_sh);
+
+// Shock width
+   container.Insert(w_sh);
+
+   simulation->AddDiffusion(DiffusionKineticEnergyRadialDistancePowerLaw(), container);
 
 //--------------------------------------------------------------------------------------------------
 // Distribution 1 (time)
@@ -267,15 +299,15 @@ int main(int argc, char** argv)
       container.Clear();
 
 // Number of bins
-      MultiIndex n_bins2(Nz, Np, 0);
+      MultiIndex n_bins2(Nr, Np, 0);
       container.Insert(n_bins2);
 
 // Smallest value
-      GeoVector minval2(z0, p0, 0.0);
+      GeoVector minval2(r0, p0, 0.0);
       container.Insert(minval2);
 
 // Largest value
-      GeoVector maxval2(zf, pf, 0.0);
+      GeoVector maxval2(rf, pf, 0.0);
       container.Insert(maxval2);
 
 // Linear or logarithmic bins
@@ -344,15 +376,15 @@ int main(int argc, char** argv)
       simulation->PrintDistro2D(i + 1, 0, 1, simulation_files_prefix + "mom_" + std::to_string(i) + ".dat", false);
    };
 
-   double divK = (kappa_up - kappa_dn) / width_shock;
+   double divK = (kappa_up - kappa_dn) / w_sh;
    if (MPI_Config::is_master) {
       std::cout << "divK = " << divK << std::endl;
-      std::cout << "width = " << width_shock << std::endl;
+      std::cout << "width = " << w_sh << std::endl;
       std::cout << "K / U (up) = " << kappa_up / U_up << std::endl;
       std::cout << "K / U (dn) = " << kappa_dn / U_dn << std::endl;
       std::cout << "K / U^2 = " << 0.25 * tau / one_day << std::endl;
-      std::cout << "min dt_adv = " << width_shock / (U_up + divK) << std::endl;
-      std::cout << "max dt_dif = " << Sqr(width_shock) / kappa_dn << std::endl;
+      std::cout << "min dt_adv = " << w_sh / (U_up + divK) << std::endl;
+      std::cout << "max dt_dif = " << Sqr(w_sh) / kappa_dn << std::endl;
    };
 
    return 0;

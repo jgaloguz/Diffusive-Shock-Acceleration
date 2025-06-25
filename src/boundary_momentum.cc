@@ -116,6 +116,44 @@ void BoundaryMomentumInject::SetupBoundary(bool construct)
    max_crossings = 1;
 };
 
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+// BoundaryMomentumPass methods
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+/*!
+\author Juan G Alonso Guzman
+\date 06/25/2025
+*/
+BoundaryMomentumPass::BoundaryMomentumPass(void)
+                    : BoundaryMomentum(bnd_name_momentum_pass, 0, BOUNDARY_MOMENTUM)
+{
+};
+
+/*!
+\author Juan G Alonso Guzman
+\date 06/25/2025
+\param[in] other Object to initialize from
+*/
+BoundaryMomentumPass::BoundaryMomentumPass(const BoundaryMomentumPass& other)
+                    : BoundaryMomentum(other)
+{
+   if (BITS_RAISED(other._status, STATE_SETUP_COMPLETE)) SetupBoundary(true);
+};
+
+/*!
+\author Juan G Alonso Guzman
+\date 06/25/2025
+\param [in] construct Whether called from a copy constructor or separately
+
+This method's main role is to unpack the data container and set up the class data members and status bits marked as "persistent". The function should assume that the data container is available because the calling function will always ensure this.
+*/
+void BoundaryMomentumPass::SetupBoundary(bool construct)
+{
+// The parent version must be called explicitly if not constructing
+   if (!construct) BoundaryMomentum::SetupBoundary(false);
+   if (max_crossings == 1) RAISE_BITS(_status, BOUNDARY_TERMINAL);
+};
+
 #if (TRAJ_TYPE != TRAJ_PARKER) && (TRAJ_TYPE != TRAJ_FIELDLINE)
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------

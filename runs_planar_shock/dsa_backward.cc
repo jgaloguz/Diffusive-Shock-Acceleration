@@ -181,6 +181,7 @@ int main(int argc, char** argv)
 //--------------------------------------------------------------------------------------------------
 // Diffusion model
 //--------------------------------------------------------------------------------------------------
+
    container.Clear();
 
 // Reference diffusion coefficient
@@ -211,7 +212,6 @@ int main(int argc, char** argv)
 // Distribution 1 (time)
 //--------------------------------------------------------------------------------------------------
 
-// Parameters for distribution
    container.Clear();
 
 // Number of bins
