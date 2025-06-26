@@ -28,10 +28,7 @@ const double zeta1 = (sqrt(lambda) - s) / (s - 1.0);
 const double zeta2 = -(sqrt(lambda) + s) / (s - 1.0);
 const double tau = 4.0 * kappa_up / Sqr(U_up);
 const double Q = 1.0;
-const double amp = 3.0 * s / (8.0 * M_PI * sqrt(lambda) * Cube(p_inj) * U_up);
-
-// const double beta = 1.5 * (s + 1.0) / (s - 1.0);
-// const double amp = 3.0 * Q / (2.0 * M_4PI * DeltaU * Cube(p0));
+const double amp = 3.0 * s / (2.0 * M_4PI * sqrt(lambda) * Cube(p_inj) * U_up);
 
 // Numerical integration parameters
 const int Np = 100;
