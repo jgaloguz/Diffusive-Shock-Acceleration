@@ -177,7 +177,6 @@ void BoundaryMomentumPass::SetupBoundary(bool construct)
 BoundaryMomentumInjectRestrictSlab::BoundaryMomentumInjectRestrictSlab(void)
                                   : BoundaryMomentumInject(bnd_name_momentum_inject_restrict_slab, 0, BOUNDARY_MOMENTUM | BOUNDARY_TERMINAL)
 {
-   max_crossings = 1;
 };
 
 /*!
@@ -188,9 +187,6 @@ BoundaryMomentumInjectRestrictSlab::BoundaryMomentumInjectRestrictSlab(void)
 BoundaryMomentumInjectRestrictSlab::BoundaryMomentumInjectRestrictSlab(const BoundaryMomentumInjectRestrictSlab& other)
                                   : BoundaryMomentumInject(other)
 {
-   RAISE_BITS(_status, BOUNDARY_TERMINAL);
-   if (BITS_RAISED(other._status, STATE_SETUP_COMPLETE)) SetupBoundary(true);
-   max_crossings = 1;
 };
 
 /*!
