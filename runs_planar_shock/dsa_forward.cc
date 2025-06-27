@@ -77,8 +77,8 @@ int main(int argc, char** argv)
    container. Insert(B_dn);
 
 // Shock width
-   double width_shock = params[1] * one_au;
-   container.Insert(width_shock);
+   double w_sh = params[1] * one_au;
+   container.Insert(w_sh);
 
 // dmax fraction
    double dmax_fraction = params[2];
@@ -344,15 +344,15 @@ int main(int argc, char** argv)
       simulation->PrintDistro2D(i + 1, 0, 1, simulation_files_prefix + "mom_" + std::to_string(i) + ".dat", false);
    };
 
-   double divK = (kappa_up - kappa_dn) / width_shock;
+   double divK = (kappa_up - kappa_dn) / w_sh;
    if (MPI_Config::is_master) {
       std::cout << "divK = " << divK << std::endl;
-      std::cout << "width = " << width_shock << std::endl;
+      std::cout << "width = " << w_sh << std::endl;
       std::cout << "K / U (up) = " << kappa_up / U_up << std::endl;
       std::cout << "K / U (dn) = " << kappa_dn / U_dn << std::endl;
       std::cout << "K / U^2 = " << 0.25 * tau / one_day << std::endl;
-      std::cout << "min dt_adv = " << width_shock / (U_up + divK) << std::endl;
-      std::cout << "max dt_dif = " << Sqr(width_shock) / kappa_dn << std::endl;
+      std::cout << "min dt_adv = " << w_sh / (U_up + divK) << std::endl;
+      std::cout << "max dt_dif = " << Sqr(w_sh) / kappa_dn << std::endl;
    };
 
    return 0;

@@ -79,8 +79,8 @@ int main(int argc, char** argv)
    container. Insert(B_dn);
 
 // Shock width
-   double width_shock = params[1] * one_au;
-   container.Insert(width_shock);
+   double w_sh = params[1] * one_au;
+   container.Insert(w_sh);
 
 // dmax fraction
    double dmax_fraction = params[2];
@@ -176,7 +176,18 @@ int main(int argc, char** argv)
 // Injection momentum
    container.Insert(p0);
 
-   simulation->AddBoundary(BoundaryMomentumInject(), container);
+// Point on left plane bounding slab
+   GeoVector left_plane(-0.5 * w_sh, 0.0, 0.0);
+   container.Insert(left_plane);
+
+// Point on right plane bounding slab
+   GeoVector right_plane(0.5 * w_sh, 0.0, 0.0);
+   container.Insert(right_plane);
+
+// Normal to both planes
+   container.Insert(n_shock);
+
+   simulation->AddBoundary(BoundaryMomentumInjectRestrictSlab(), container);
 
 //--------------------------------------------------------------------------------------------------
 // Diffusion model
@@ -271,11 +282,11 @@ int main(int argc, char** argv)
    container.Insert(n_bins2);
 
 // Smallest value
-   GeoVector minval2(-width_shock, 0.0, 0.0);
+   GeoVector minval2(-w_sh, 0.0, 0.0);
    container.Insert(minval2);
 
 // Largest value
-   GeoVector maxval2(width_shock, 0.0, 0.0);
+   GeoVector maxval2(w_sh, 0.0, 0.0);
    container.Insert(maxval2);
 
 // Linear or logarithmic bins
