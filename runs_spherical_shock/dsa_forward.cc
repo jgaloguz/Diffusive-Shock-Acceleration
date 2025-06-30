@@ -17,8 +17,8 @@ int main(int argc, char** argv)
 {
    int i, j;
    DataContainer container;
-   DefineArrays();
    ReadParams();
+   DefineArrays();
 
 //--------------------------------------------------------------------------------------------------
 // Create a simulation object
@@ -53,12 +53,11 @@ int main(int argc, char** argv)
    double RS = 6.957e10 / unit_length_fluid;
    double r_ref = 3.0 * RS;
    double BmagE = 5.0e-5 / unit_magnetic_fluid;
-   double Bmag_ref = BmagE * Sqr((GSL_CONST_CGSM_ASTRONOMICAL_UNIT / unit_length_fluid) / r_ref);
+   double Bmag_ref = BmagE * Sqr(one_au / r_ref);
    GeoVector B0(Bmag_ref, 0.0, 0.0);
    container.Insert(B0);
 
 // Maximum displacement
-   double dmax = params[0] * one_au;
    container.Insert(dmax);
 
 // Solar rotation vector
@@ -69,14 +68,12 @@ int main(int argc, char** argv)
    container.Insert(r_ref);
 
 // dmax fraction
-   double dmax_fraction = params[2];
    container.Insert(dmax_fraction);
 
 // Spherical shock radius
    container.Insert(R_sh); 
 
 // Spherical shock width
-   double w_sh = params[1] * one_au;
    container.Insert(w_sh);
    
 // Spherical shock strength
@@ -121,7 +118,7 @@ int main(int argc, char** argv)
    container.Clear();
 
 // Injection momentum
-   container.Insert(p0);
+   container.Insert(p_inj);
 
    simulation->AddInitial(InitialMomentumShell(), container);
 
@@ -219,6 +216,10 @@ int main(int argc, char** argv)
 // Power of kinetic energy dependance
    double power_law_T = 0.0;
    container.Insert(power_law_T);
+
+// Power of kinetic energy dependance
+   double power_law_r = 1.0;
+   container.Insert(power_law_r);
 
 // Ratio of perpendicular to parallel diffusion
    double kap_rat = 0.0;
@@ -342,8 +343,8 @@ int main(int argc, char** argv)
       int val_time2 = 1;
       container.Insert(val_time2);
 
-// Which component of position to use
-      int pos_coord2 = 0;
+// Which component of position to use (index 3 means use norm instead of a single component)
+      int pos_coord2 = 3;
       container.Insert(pos_coord2);
 
 // Which component of momentum to use

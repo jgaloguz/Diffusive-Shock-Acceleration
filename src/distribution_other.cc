@@ -341,11 +341,11 @@ void DistributionPositionMomentumUniform::SetupDistribution(bool construct)
 void DistributionPositionMomentumUniform::EvaluateValue(void)
 {
    if (val_time == 0) {
-      this->_value[0] = this->_pos[pos_idx];
+      this->_value[0] = (pos_idx == 3 ? this->_pos.Norm() : this->_pos[pos_idx]);
       this->_value[1] = this->_mom[mom_idx];
    }
    else {
-      this->_value[0] = this->_pos2[pos_idx];
+      this->_value[0] = (pos_idx == 3 ? this->_pos2.Norm() : this->_pos2[pos_idx]);
       this->_value[1] = this->_mom2[mom_idx];
    };
 };

@@ -53,17 +53,19 @@ int main(int argc, char** argv)
    std::ofstream dsa_analytic_file;
 
 // Define initialize momentum, position, and time arrays
-   DefineArrays();
    ReadParams();
-   std::cout << "r_shock = " << r_shock << std::endl;
-   std::cout << "t_acc = " << tau << std::endl;
+   DefineArrays();
+   std::cout << "r_diff = " << (kappa_up / U_up) / one_au << " au" << std::endl;
+   std::cout << "r_spectrum = " << r_spectrum / one_au << " au" << std::endl;
+   std::cout << "t_acc = " << tau / one_day << " days" << std::endl;
+   std::cout << "t_final = " << t_arr[Nt-1] / one_day << " days" << std::endl;
 
 // Number density vs position (integrate over momentum)
    dsa_analytic_file.open("dsa_results/dsa_analytic_pos_" + std::to_string(i) + ".dat");
 // Loop over spatial positions
    for (j = 0; j < Nr; j++) {
 // Output to file
-      dsa_analytic_file << std::setw(16) << r_arr[j]
+      dsa_analytic_file << std::setw(16) << r_arr[j] / one_au
                         << std::setw(16) << MomentumIntegral(r_arr[j])
                         << std::endl;
    };
@@ -73,14 +75,16 @@ int main(int argc, char** argv)
 // Loop over momentum
    for (j = 0; j < Np; j++) {
 // Output to file
-      dsa_analytic_file << std::setw(16) << p_arr[j]
-                        << std::setw(16) << N12(params[3] * r_shock, p_arr[j]) * M_4PI * Sqr(p_arr[j])
+      dsa_analytic_file << std::setw(16) << EnrKin(p_arr[j], specie) / one_MeV
+                        << std::setw(16) << N12(r_spectrum, p_arr[j]) * M_4PI * Sqr(p_arr[j])
                         << std::endl;
    };
    dsa_analytic_file.close();
 
-// Output time
-   std::cout << "t_final = " << t_arr[i] << std::endl;
+// Output times
+   dsa_analytic_file.open("dsa_results/dsa_analytic_time.dat");
+   for (j = 0; j < Nt; j++) dsa_analytic_file << std::setw(16) << t_arr[j] / one_day << std::endl;
+   dsa_analytic_file.close();
 
    return 0;
 };

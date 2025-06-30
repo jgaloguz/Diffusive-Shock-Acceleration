@@ -16,8 +16,8 @@ int main(int argc, char** argv)
 {
    int i, j;
    DataContainer container;
-   DefineArrays();
    ReadParams();
+   DefineArrays();
 
 //--------------------------------------------------------------------------------------------------
 // Create a simulation object
@@ -54,7 +54,6 @@ int main(int argc, char** argv)
    container.Insert(B0);
 
 // Maximum displacement
-   double dmax = params[0] * one_au;
    container.Insert(dmax);
 
 // Shock starting position
@@ -77,11 +76,9 @@ int main(int argc, char** argv)
    container. Insert(B_dn);
 
 // Shock width
-   double w_sh = params[1] * one_au;
    container.Insert(w_sh);
 
 // dmax fraction
-   double dmax_fraction = params[2];
    container.Insert(dmax_fraction);
 
    simulation->AddBackground(BackgroundSmoothShock(), container);

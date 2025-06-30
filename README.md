@@ -65,20 +65,42 @@ make dsa_backward_postprocess
 ```
 where no options are needed in this case.
 
+**Parameters File**
 The `params.dat` file contains the parameters that control the simulation execution and output.
-The first parameter equals the maximum spatial displacement per step for the trajectories away from the shock in units of au.
-The second parameter equals the width of the shock in units of au.
-The third parameter equals the maximum spatial displacement per step for the trajectories near the shock as a fraction of the first parameter.
-The fourth parameter equals the initial spatial location of the pseudo-particles for the backward runs as a factor of `z_shock` or `r_shock`, which is the location of the bin center closest to the shock front on the downstream region.
+Below is a list of all of the parameters in the order that they should be specified within the file (separated by white space/return) and their meaning/usage.
+The units are mentioned within parentheses.
+
+ - *Parameter 1*: maximum spatial displacement per step for the trajectories away from the shock (au).
+ - *Parameter 2*: width of the shock (au).
+ - *Parameter 3*: maximum spatial displacement per step for the trajectories near the shock given as a fraction of the shock width (unitless).
+ - *Parameter 4*: spatial/radial location where to plot spectrum (au).
+ - *Parameter 5*: injection momentum (MeV).
+ - *Parameter 6*: shock strength, which should be in the range (1,4] (unitless).
+ - *Parameter 7*: upstream flow speed near the shock (cm / s).
+ - *Parameter 8*: upstream diffusion coefficient near the shock (cm^2 / s).
+ - *Parameter 9*: injection rate (1 / cm^2 / s)
+ - *Parameter 10*: lower bound of momentum range (MeV). **Used only in spherical shock simulations**. For the planar shock problem, the injection momentum is used as the lower bound of the momentum range.
+ - *Parameter 11*: upper bound of momentum range (MeV).
+ - *Parameter 12*: lower bound of spatial/radius range (au).
+ - *Parameter 13*: upper bound of spatial/radius range (au).
+ - *Parameter 14*: lower bound of temporal range (day).
+ - *Parameter 15*: upper bound of temporal range (day).
+ - *Parameter 16*: radius of spherical shock (au). **Used only in spherical shock simulations**. For the planar shock problem, the shock is placed at x = 0.
+
+ Note that the default binning resolutions of the momentum, spatial, and temporal ranges are 100, 100, and 5 bins respectively.
+ These do not affect the physics or the execution time, and should be the same across all runs for a fair comparison.
+ They can be manually changed in the `dsa_common.hh` file prior to compilation.
 
 **Plotting Results**
 
 All results are stored in the `runs/dsa_results` folder.
 They can be visualized by running a Python script
 ```
-python dsa_plots.py <which-time-flow>
+python dsa_plots.py <Nt1> <Nt2> <which-time-flow>
 ```
-where `<which-time-flow>` is either `forward` or `backward`, depending on which result you want to compare with analytic results.
+where `<Nt1>` and `<Nt2>` are the lower and upper time indices specifying a subset of the results to be plotted, and `<which-time-flow>` is either `forward` or `backward`, depending on which result you want to compare with analytic results.
+In particular, setting `<Nt1> = 0` and `<Nt2> = 5` will plot all the available results for the default time resolution of 5 bins.
+The plots generated are the spatial dependence of the number density (density integrated over momentum) in the top panel and the omnidirectional spectrum (density times momentum squared) at the location indicated by Parameter 4 in the top panel.
 
 ## Important note
 

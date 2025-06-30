@@ -15,8 +15,8 @@ int main(int argc, char** argv)
    std::string infilename;
    std::string outfilename;
    std::string line;
-   DefineArrays();
    ReadParams();
+   DefineArrays();
 
    for (i = 0; i < Nt; i++) {
 // Number density vs position
@@ -47,7 +47,7 @@ int main(int argc, char** argv)
 // Output data
       output_sda_file << std::setprecision(8);
       for(j = 0; j < Nz; j++) {
-         output_sda_file << std::setw(20) << coord1[j][0]
+         output_sda_file << std::setw(20) << coord1[j][0] / one_au
                          << std::setw(20) << sum_c[j][0] / dz * Q * tf / n_traj
                          << std::endl;
       };
@@ -87,9 +87,9 @@ int main(int argc, char** argv)
 
 // Output data
       output_sda_file << std::setprecision(8);
-      j = (params[3] * z_shock - z0) / dz;
+      j = (z_spectrum - z0) / dz;
       for(k = 0; k < Np; k++) {
-         output_sda_file << std::setw(20) << coord2[j][k]
+         output_sda_file << std::setw(20) << EnrKin(coord2[j][k], specie) / one_MeV
                          << std::setw(20) << sum_c[j][k] / (dz * dp_arr[k]) * Q * tf / n_traj
                          << std::endl;
       };

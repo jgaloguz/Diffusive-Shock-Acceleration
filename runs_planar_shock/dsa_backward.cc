@@ -17,8 +17,8 @@ int main(int argc, char** argv)
 {
    int i;
    DataContainer container;
-   DefineArrays();
    ReadParams();
+   DefineArrays();
 
 //--------------------------------------------------------------------------------------------------
 // Create a simulation object
@@ -55,8 +55,6 @@ int main(int argc, char** argv)
    container.Insert(B0);
 
 // Maximum displacement
-   double one_au = GSL_CONST_CGSM_ASTRONOMICAL_UNIT / unit_length_fluid;
-   double dmax = params[0] * one_au;
    container.Insert(dmax);
 
 // Shock starting position
@@ -79,11 +77,9 @@ int main(int argc, char** argv)
    container. Insert(B_dn);
 
 // Shock width
-   double w_sh = params[1] * one_au;
    container.Insert(w_sh);
 
 // dmax fraction
-   double dmax_fraction = params[2];
    container.Insert(dmax_fraction);
 
    simulation->AddBackground(BackgroundSmoothShock(), container);
@@ -111,7 +107,7 @@ int main(int argc, char** argv)
    container.Clear();
 
 // Point to obtain solution
-   GeoVector init_pos(params[3] * z_shock, 0.0, 0.0);
+   GeoVector init_pos(z_spectrum, 0.0, 0.0);
    container.Insert(init_pos);
 
    simulation->AddInitial(InitialSpaceFixed(), container);
