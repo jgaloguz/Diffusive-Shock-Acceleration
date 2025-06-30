@@ -15,8 +15,8 @@ int main(int argc, char** argv)
    int sum_c[Np];
    double coord[Np], distro[Np], sum_w[Np];
    double S;
-   DefineArrays();
    ReadParams();
+   DefineArrays();
 
    for (i = 0; i < Nt; i++) {
 // Spectrum vs momentum
@@ -47,7 +47,7 @@ int main(int argc, char** argv)
 // Output data
       output_sda_file << std::setprecision(8);
       for(j = 0; j < Np; j++) {
-         output_sda_file << std::setw(20) << coord[j]
+         output_sda_file << std::setw(20) << EnrKin(coord[j], specie) / one_MeV
                          << std::setw(20) << amp * M_8PI * distro[j] * Sqr(coord[j])
                          << std::endl;
       };

@@ -17,8 +17,8 @@ int main(int argc, char** argv)
 {
    int i;
    DataContainer container;
-   DefineArrays();
    ReadParams();
+   DefineArrays();
 
 //--------------------------------------------------------------------------------------------------
 // Create a simulation object
@@ -53,12 +53,11 @@ int main(int argc, char** argv)
    double RS = 6.957e10 / unit_length_fluid;
    double r_ref = 3.0 * RS;
    double BmagE = 5.0e-5 / unit_magnetic_fluid;
-   double Bmag_ref = BmagE * Sqr((GSL_CONST_CGSM_ASTRONOMICAL_UNIT / unit_length_fluid) / r_ref);
+   double Bmag_ref = BmagE * Sqr(one_au / r_ref);
    GeoVector B0(Bmag_ref, 0.0, 0.0);
    container.Insert(B0);
 
 // Maximum displacement
-   double dmax = params[0] * one_au;
    container.Insert(dmax);
 
 // Solar rotation vector
@@ -69,14 +68,12 @@ int main(int argc, char** argv)
    container.Insert(r_ref);
 
 // dmax fraction
-   double dmax_fraction = params[2];
    container.Insert(dmax_fraction);
 
 // Spherical shock radius
    container.Insert(R_sh); 
 
 // Spherical shock width
-   double w_sh = params[1] * one_au;
    container.Insert(w_sh);
    
 // Spherical shock strength
@@ -107,7 +104,7 @@ int main(int argc, char** argv)
    container.Clear();
 
 // Point to obtain solution
-   GeoVector init_pos(params[3] * r_shock, 0.0, 0.0);
+   GeoVector init_pos(r_spectrum, 0.0, 0.0);
    container.Insert(init_pos);
 
    simulation->AddInitial(InitialSpaceFixed(), container);
@@ -170,9 +167,20 @@ int main(int argc, char** argv)
    container.Insert(actions_mom);
 
 // Injection momentum
-   container.Insert(p0);
+   container.Insert(p_inj);
 
-   simulation->AddBoundary(BoundaryMomentumPass(), container);
+// Center of spherical shells
+   container.Insert(gv_zeros);
+
+// Radius of inner shell
+   double inner_shell_radius = R_sh;
+   container.Insert(inner_shell_radius);
+
+// Radius of outer shell
+   double outer_shell_radius = R_sh + w_sh;
+   container.Insert(outer_shell_radius);
+
+   simulation->AddBoundary(BoundaryMomentumInjectRestrictShell(), container);
 
 //--------------------------------------------------------------------------------------------------
 // Diffusion model
@@ -276,11 +284,11 @@ int main(int argc, char** argv)
    container.Insert(n_bins2);
 
 // Smallest value
-   GeoVector minval2(-w_sh, 0.0, 0.0);
+   GeoVector minval2(R_sh, 0.0, 0.0);
    container.Insert(minval2);
 
 // Largest value
-   GeoVector maxval2(w_sh, 0.0, 0.0);
+   GeoVector maxval2(R_sh + w_sh, 0.0, 0.0);
    container.Insert(maxval2);
 
 // Linear or logarithmic bins

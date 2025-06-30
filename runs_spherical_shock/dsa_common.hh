@@ -12,51 +12,98 @@ const double one_au = GSL_CONST_CGSM_ASTRONOMICAL_UNIT / unit_length_fluid;
 const double one_day = 24.0 * 60.0 * 60.0 / unit_time_fluid;
 
 // Shock parameters
-const double p_inj = Mom(1.0 * one_MeV, specie);
-const double s = 4.0;
-const double R_sh = 80.0 * one_au;
-const double U_up = 4.0e7 / unit_velocity_fluid;
-const double U_dn = U_up / s;
-const double DeltaU = U_up - U_dn;
-const double kappa_up = 1.0e21 / unit_diffusion_fluid;
-const double kappa_dn = kappa_up * Sqr(U_dn / U_up);
-const double eta_up = R_sh * U_up / kappa_up;
-const double eta_dn = R_sh * U_dn / kappa_dn;
-const double xi = 0.5 * eta_up - 1.0;
-const double lambda = Sqr(s + (s - 1.0) * xi) + (s - 1.0) * 2.0 * eta_up * exp(-eta_dn) / (1.0 - exp(-eta_dn));
-const double zeta1 = (sqrt(lambda) - s) / (s - 1.0);
-const double zeta2 = -(sqrt(lambda) + s) / (s - 1.0);
-const double tau = 4.0 * kappa_up / Sqr(U_up);
-const double Q = 1.0;
-const double amp = 3.0 * s / (2.0 * M_4PI * sqrt(lambda) * Cube(p_inj) * U_up);
+double p_inj;                    // Injection momentum
+double s;                        // Shock strength
+double R_sh;                     // Radius of shock surface
+double U_up;                     // Upstream flow speed
+double U_dn;                     // Downstream flow speed
+double DeltaU;                   // Difference between up and downstream flow speed
+double kappa_up;                 // Diffusion coefficient upstream
+double kappa_dn;                 // Diffusion coefficient downstream
+double eta_up;                   // Parameter of interest upstream U*R/kappa
+double eta_dn;                   // Parameter of interest downstream U*R/kappa
+double xi;                       // Parameter of interest upstream 0.5*eta - 1
+double lambda;                   // Parameter of interest (see manuscript)
+double zeta1;                    // Parameter of interest (sqrt(lambda) - s)/(s-1)
+double zeta2;                    // Parameter of interest -(sqrt(lambda) + s)/(s-1)
+double tau;                      // Acceleration time
+double Q;                        // Injection rate
+double amp;                      // Scaling factor for analytic solution
 
-// Numerical integration parameters
-const int Np = 100;
-const double p0 = Mom(0.01 * one_MeV, specie);
-const double pf = Mom(100.0 * one_MeV, specie);
-const double logp0 = log10(p0);
-const double logpf = log10(pf);
-const double dlogp = (logpf - logp0) / Np;
-const int Nr = 100;
-const double r0 = R_sh - 20.0 * one_au;
-const double rf = R_sh + 40.0 * one_au;
-const double dr = (rf - r0) / Nr;
-const int Nt = 5;
-const double t0 = 1.0 * one_day;
-const double tf = 100.0 * one_day;
-const double logt0 = log10(t0);
-const double logtf = log10(tf);
-const double dlogt = (logtf - logt0) / (Nt - 1);
+// Numerical simulation parameters
+double dmax;                     // Maximum trajectory displacement away from shock
+double w_sh;                     // Shock width
+double dmax_fraction;            // Ratio of shock width to impose as maximum trajectory displacement near shock
+const int Np = 100;              // Number of momentum bins
+double p0;                       // Lower limit in momentum range
+double pf;                       // Upper limit in momentum range
+double logp0;                    // Logarithm of p0
+double logpf;                    // Logarithm of pf
+double dlogp;                    // Difference between logarithms of p0 and pf
+const int Nr = 100;              // Number of radial bins
+double r0;                       // Lower limit of radial range
+double rf;                       // Upper limit of radial range
+double dr;                       // Radial bin size
+const int Nt = 5;                // Number of time bins
+double t0;                       // Lower limit of time
+double tf;                       // Upper limit of time
+double logt0;                    // Logarithm of t0
+double logtf;                    // Logarithm of tf
+double dlogt;                    // Difference between logarithms of t0 and tf
 
-double p_arr[Np];
-double dp_arr[Np];
-double r_arr[Nr];
-double r_shock;
-double t_arr[Nt];
+double p_arr[Np];                // Momentum bin centers
+double dp_arr[Np];               // Momentum bin sizes
+double r_arr[Nr];                // Radial bin centers
+double r_spectrum;               // Radial location where to plot spectrum
+double t_arr[Nt];                // Time bin centers
 
-const int N_params = 4;
-double params[N_params];
-std::ifstream params_file;
+const int N_params = 16;          // Number of parameters to read from file
+double params[N_params];         // Array of parameters
+std::ifstream params_file;       // Parameter file
+
+// Read parameters from file
+void ReadParams(void)
+{
+   params_file.open("params.dat");
+   for (int i = 0; i < N_params; i++) params_file >> params[i];
+   params_file.close();
+
+// Unpack parameters
+   dmax = params[0] * one_au;
+   w_sh = params[1] * one_au;
+   dmax_fraction = params[2];
+   r_spectrum = params[3] * one_au;
+   p_inj = Mom(params[4] * one_MeV, specie);
+   s = params[5];
+   R_sh = params[15] * one_au;
+   U_up = params[6] / unit_velocity_fluid;
+   U_dn = U_up / s;
+   DeltaU = U_up - U_dn;
+   kappa_up = params[7] / unit_diffusion_fluid;
+   kappa_dn = kappa_up * Sqr(U_dn / U_up);
+   eta_up = R_sh * U_up / kappa_up;
+   eta_dn = R_sh * U_dn / kappa_dn;
+   xi = 0.5 * eta_up - 1.0;
+   lambda = Sqr(s + (s - 1.0) * xi) + (s - 1.0) * 2.0 * eta_up * exp(-eta_dn) / (1.0 - exp(-eta_dn));
+   zeta1 = (sqrt(lambda) - s) / (s - 1.0);
+   zeta2 = -(sqrt(lambda) + s) / (s - 1.0);
+   tau = 4.0 * kappa_up / Sqr(U_up);
+   Q = params[8];
+   amp = 3.0 * s / (2.0 * M_4PI * sqrt(lambda) * Cube(p_inj) * U_up);
+   p0 = Mom(params[9] * one_MeV, specie);
+   pf = Mom(params[10] * one_MeV, specie);
+   logp0 = log10(p0);
+   logpf = log10(pf);
+   dlogp = (logpf - logp0) / Np;
+   r0 = params[11] * one_au;
+   rf = params[12] * one_au;
+   dr = (rf - r0) / Nr;
+   t0 = params[13] * one_day;
+   tf = params[14] * one_day;
+   logt0 = log10(t0);
+   logtf = log10(tf);
+   dlogt = (logtf - logt0) / (Nt - 1);
+};
 
 // Define initialize momentum, position, and time arrays
 void DefineArrays(void)
@@ -67,22 +114,10 @@ void DefineArrays(void)
       p_arr[i] = pow(10.0, logp0 + (i+0.5) * dlogp);
       dp_arr[i] = pow(10.0, logp0 + (i+1) * dlogp) - pow(10.0, logp0 + i * dlogp);
    };
-// Position
+// Radius
    for (i = 0; i < Nr; i++) r_arr[i] = r0 + (i+0.5) * dr;
-   for (i = Nr-1; i >= 0; i--) {
-      if (r_arr[i] <= R_sh) break;
-      else r_shock = r_arr[i];
-   };
 // Time
    for (i = 0; i < Nt; i++) t_arr[i] = pow(10.0, logt0 + i * dlogt);
 };
-
-// Read parameters from file
-void ReadParams(void)
-{
-   params_file.open("params.dat");
-   for (int i = 0; i < N_params; i++) params_file >> params[i];
-   params_file.close();
-}
 
 #endif

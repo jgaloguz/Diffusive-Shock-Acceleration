@@ -139,7 +139,7 @@ const std::string bnd_name_momentum_inject_restrict_slab = "BoundaryMomentumInje
 \brief Absorbing (injection) momentum boundary restricted to space between two parallel planes
 \author Vladimir Florinski
 
-Parameters: (BoundaryInject), GeoVector r0, GeoVector r1, GeoVector normal 
+Parameters: (BoundaryMomentumInject), GeoVector r0, GeoVector r1, GeoVector normal 
 */
 class BoundaryMomentumInjectRestrictSlab : public BoundaryMomentumInject {
 
@@ -173,6 +173,53 @@ public:
 
 //! Clone function
    CloneFunctionBoundary(BoundaryMomentumInjectRestrictSlab);
+};
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+// BoundaryMomentumInjectRestrictShell class declaration
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+//! Readable name of the BoundaryMomentumInjectRestrictShell class
+const std::string bnd_name_momentum_inject_restrict_shell = "BoundaryMomentumInjectRestrictShell";
+
+/*!
+\brief Absorbing (injection) momentum boundary restricted to space between two concentric spheres
+\author Vladimir Florinski
+
+Parameters: (BoundaryMomentumInject), GeoVector r0, double r1, double r2 
+*/
+class BoundaryMomentumInjectRestrictShell : public BoundaryMomentumInject {
+
+protected:
+
+//! Center of the shperes
+   GeoVector r0;
+
+//! Radius of the inner sphere
+   double r1;
+
+//! Radius of the outer sphere
+   double r2;
+
+//! Set up the boundary evaluator based on "params"
+   void SetupBoundary(bool construct) override;
+
+//! Compute the distance to the boundary
+   void EvaluateBoundary(void) override;
+
+public:
+
+//! Default constructor
+   BoundaryMomentumInjectRestrictShell(void);
+
+//! Copy constructor
+   BoundaryMomentumInjectRestrictShell(const BoundaryMomentumInjectRestrictShell& other);
+
+//! Destructor
+   ~BoundaryMomentumInjectRestrictShell() override = default;
+
+//! Clone function
+   CloneFunctionBoundary(BoundaryMomentumInjectRestrictShell);
 };
 
 #if (TRAJ_TYPE != TRAJ_PARKER) && (TRAJ_TYPE != TRAJ_FIELDLINE)
