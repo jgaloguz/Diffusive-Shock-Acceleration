@@ -21,7 +21,7 @@ namespace Spectrum {
 #define SMOOTH_TERM_SHOCK_ORDER 4
 
 //! Scaling factor to better match shock width when using smooth shock (tanh)
-const double tanh_width_factor = 4.0;
+const double tanh_width_factor = 8.0;
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 // BackgroundSolarWindTermShock class declaration

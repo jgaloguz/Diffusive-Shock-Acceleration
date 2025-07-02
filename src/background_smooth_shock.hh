@@ -20,7 +20,7 @@ namespace Spectrum {
 #define SMOOTHSHOCK_DERIVATIVE_METHOD 0
 
 //! Scaling factor to better match shock width when using smooth shock (tanh)
-const double tanh_width_factor = 4.0;
+const double tanh_width_factor = 8.0;
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 // BackgroundSmoothShock class declaration

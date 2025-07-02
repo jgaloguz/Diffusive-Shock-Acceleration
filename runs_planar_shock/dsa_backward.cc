@@ -278,11 +278,11 @@ int main(int argc, char** argv)
    container.Insert(n_bins2);
 
 // Smallest value
-   GeoVector minval2(-w_sh, 0.0, 0.0);
+   GeoVector minval2(-0.5 * w_sh, 0.0, 0.0);
    container.Insert(minval2);
 
 // Largest value
-   GeoVector maxval2(w_sh, 0.0, 0.0);
+   GeoVector maxval2(0.5 * w_sh, 0.0, 0.0);
    container.Insert(maxval2);
 
 // Linear or logarithmic bins

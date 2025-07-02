@@ -89,7 +89,7 @@ void ReadParams(void)
    zeta2 = -(sqrt(lambda) + s) / (s - 1.0);
    tau = 4.0 * kappa_up / Sqr(U_up);
    Q = params[8];
-   amp = 3.0 * s / (2.0 * M_4PI * sqrt(lambda) * Cube(p_inj) * U_up);
+   amp = 3.0 * Q * s / (2.0 * M_4PI * sqrt(lambda) * Cube(p_inj) * U_up);
    p0 = Mom(params[9] * one_MeV, specie);
    pf = Mom(params[10] * one_MeV, specie);
    logp0 = log10(p0);
