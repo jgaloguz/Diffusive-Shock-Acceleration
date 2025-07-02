@@ -21,7 +21,6 @@ dsa_forward_SOURCES = dsa_forward.cc dsa_common.hh \
    $(SPBL_SOURCE_DIR)/background_shock.hh \
    $(SPBL_SOURCE_DIR)/background_base.cc \
    $(SPBL_SOURCE_DIR)/background_base.hh \
-   $(SPBL_SOURCE_DIR)/background_base_visual.cc \
    $(SPBL_SOURCE_DIR)/boundary_momentum.cc \
    $(SPBL_SOURCE_DIR)/boundary_momentum.hh \
    $(SPBL_SOURCE_DIR)/boundary_space.cc \
@@ -86,7 +85,6 @@ dsa_backward_SOURCES = dsa_backward.cc dsa_common.hh \
    $(SPBL_SOURCE_DIR)/background_shock.hh \
    $(SPBL_SOURCE_DIR)/background_base.cc \
    $(SPBL_SOURCE_DIR)/background_base.hh \
-   $(SPBL_SOURCE_DIR)/background_base_visual.cc \
    $(SPBL_SOURCE_DIR)/boundary_momentum.cc \
    $(SPBL_SOURCE_DIR)/boundary_momentum.hh \
    $(SPBL_SOURCE_DIR)/boundary_space.cc \

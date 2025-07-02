@@ -18,7 +18,7 @@ fig = plt.figure(figsize=(15, 10), layout='tight')
 ax1 = fig.add_subplot(211, projection='rectilinear')
 
 colors = ["tab:blue", "tab:orange", "tab:green", "tab:red", "tab:purple"]
-ax1.semilogy(dsa_analytic_pos[:,0], dsa_analytic_pos[:,1], color=colors[Nt_high])
+ax1.semilogy(dsa_analytic_pos[:,0], dsa_analytic_pos[:,1], color=colors[Nt_high-1])
 for t in range(Nt_low, Nt_high):
    ax1.semilogy(dsa_simulated_pos[t-Nt_low][:,0], dsa_simulated_pos[t-Nt_low][:,1],
                 color=colors[t], linestyle="", marker="o",
@@ -31,7 +31,7 @@ ax1.legend(fontsize=20)
 
 ax2 = fig.add_subplot(212, projection='rectilinear')
 
-ax2.loglog(dsa_analytic_mom[:,0], dsa_analytic_mom[:,1], color=colors[Nt_high])
+ax2.loglog(dsa_analytic_mom[:,0], dsa_analytic_mom[:,1], color=colors[Nt_high-1])
 for t in range(Nt_low, Nt_high):
    ax2.loglog(dsa_simulated_mom[t-Nt_low][:,0], dsa_simulated_mom[t-Nt_low][:,1],
               color=colors[t], linestyle="", marker="s",
