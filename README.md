@@ -48,6 +48,7 @@ The results can be post-processed with the command
 make dsa_forward_postprocess
 ./dsa_forward_postprocess <number-of-trajectories>
 ```
+This command will post-process the results for all time, spatial, and momentum bins, since a single forward-in-time simulation, provided high enough statistics, will approximate the momentum spectrum at all times and all spatial locations.
 
 **Backward-in-time Simulations**
 
@@ -57,13 +58,14 @@ Compile and run the code using
 make dsa_backward
 mpirun -np <N> dsa_backward <number-of-trajectories> <batch-size> <time-index>
 ```
-where the first two options mean the same as in the forward-in-time runs and the third is the index of the time within the common time array at which to initialize the pseudo-particles.
+where `<N>`, `<number-of-trajectories>`, and `<batch-size>` mean the same as in the forward-in-time runs while `<time-index>` is the index of the time within the common time array at which to initialize the pseudo-particles.
 The results can be post-processed with the command
 ```
 make dsa_backward_postprocess
-./dsa_backward_postprocess
+./dsa_backward_postprocess <time-index>
 ```
-where no options are needed in this case.
+This command will only post-process the results for the time corresponding to `<time-index>` and the spatial location given by input *Parameter 4* (see list of parameters below).
+This is because each backward-in-time run will only compute the spectrum at a single time and location.
 
 **Parameters File**
 The `params.dat` file contains the parameters that control the simulation execution and output.
@@ -73,7 +75,7 @@ The units are mentioned within parentheses.
  - *Parameter 1*: maximum spatial displacement per step for the trajectories away from the shock (au).
  - *Parameter 2*: width of the shock (au).
  - *Parameter 3*: maximum spatial displacement per step for the trajectories near the shock given as a fraction of the shock width (unitless).
- - *Parameter 4*: spatial/radial location where to plot spectrum (au).
+ - *Parameter 4*: spatial/radial location where to compute/plot spectrum (au).
  - *Parameter 5*: injection momentum (MeV).
  - *Parameter 6*: shock strength, which should be in the range (1,4] (unitless).
  - *Parameter 7*: upstream flow speed near the shock (cm / s).
@@ -96,11 +98,13 @@ The units are mentioned within parentheses.
 All results are stored in the `runs/dsa_results` folder.
 They can be visualized by running a Python script
 ```
-python dsa_plots.py <Nt1> <Nt2> <which-time-flow>
+python dsa_plots.py <Nt1> <Nt2> <which-variables> <which-time-flow>
 ```
-where `<Nt1>` and `<Nt2>` are the lower and upper time indices specifying a subset of the results to be plotted, and `<which-time-flow>` is either `forward` or `backward`, depending on which result you want to compare with analytic results.
+where `<Nt1>` and `<Nt2>` are the lower and upper time indices specifying a subset of the results to be plotted, `<which-variables>` can be `none`, `pos`, `mom`, or `both`, and `<which-time-flow>` is either `forward` or `backward`.
 In particular, setting `<Nt1> = 0` and `<Nt2> = 5` will plot all the available results for the default time resolution of 5 bins.
-The plots generated are the spatial dependence of the number density (density integrated over momentum) in the top panel and the omnidirectional spectrum (density times momentum squared) at the location indicated by Parameter 4 in the top panel.
+Using `<which-variables> = none` will only plot the analytic results (which are always plotted).
+Using `<which-variables> = pos` will add the number density (spectrum integrated over momentum) vs space plots in the top panel, `<which-variables> = mom` will add the spectrum vs momentum plots at the location indicated by *Parameter 4* in the bottom panel, and `<which-variables> = both` will add both.
+Finally, setting `<which-time-flow> = forward` will plot the results from the forward-in-time runs, while setting `<which-time-flow> = backward` will plot the results from the backward-in-time runs.
 
 ## Important note
 
