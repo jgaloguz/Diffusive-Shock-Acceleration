@@ -58,7 +58,7 @@ int main(int argc, char** argv)
    std::cout << "r_diff = " << (kappa_up / U_up) / one_au << " au" << std::endl;
    std::cout << "r_spectrum = " << r_spectrum / one_au << " au" << std::endl;
    std::cout << "t_acc = " << tau / one_day << " days" << std::endl;
-   std::cout << "t_final = " << t_arr[Nt-1] / one_day << " days" << std::endl;
+   std::cout << "t_final = " << t_arr[i] / one_day << " days" << std::endl;
 
 // Number density vs position (integrate over momentum)
    dsa_analytic_file.open("dsa_results/dsa_analytic_pos_" + std::to_string(i) + ".dat");

@@ -8,7 +8,8 @@ using namespace Spectrum;
 
 int main(int argc, char** argv)
 {
-   int i, j, k; 
+   int i = Nt-1, j, k; 
+   if(argc > 1) i = atoi(argv[1]);
    std::string infilename;
    std::string outfilename;
    std::string line;
@@ -18,48 +19,46 @@ int main(int argc, char** argv)
    ReadParams();
    DefineArrays();
 
-   for (i = 0; i < Nt; i++) {
 // Spectrum vs momentum
-      infilename = "dsa_results/dsa_backward_mom_" + std::to_string(i) + ".dat";
-      outfilename = "dsa_results/dsa_backward_mom_" + std::to_string(i) + "_pp.dat";
+   infilename = "dsa_results/dsa_backward_mom_" + std::to_string(i) + ".dat";
+   outfilename = "dsa_results/dsa_backward_mom_" + std::to_string(i) + "_pp.dat";
 
 // Open input analytic distro file
-      std::ifstream input_sda_file(infilename);
+   std::ifstream input_sda_file(infilename);
 
 // Read first two lines of distro file
-      std::getline(input_sda_file, line);
-      std::getline(input_sda_file, line);
+   std::getline(input_sda_file, line);
+   std::getline(input_sda_file, line);
 
 // Read data
-      for(j = 0; j < Np; j++) {
-         input_sda_file >> coord[j];
-         input_sda_file >> distro[j];
-         input_sda_file >> sum_w[j];
-         input_sda_file >> sum_c[j];
-      };
+   for(j = 0; j < Np; j++) {
+      input_sda_file >> coord[j];
+      input_sda_file >> distro[j];
+      input_sda_file >> sum_w[j];
+      input_sda_file >> sum_c[j];
+   };
 
 // Close input cartesian distro file
-      input_sda_file.close();
+   input_sda_file.close();
 
 // Open output distro file
-      std::ofstream output_sda_file(outfilename);
+   std::ofstream output_sda_file(outfilename);
 
 // Output data
-      output_sda_file << std::setprecision(8);
-      for(j = 0; j < Np; j++) {
-         output_sda_file << std::setw(20) << EnrKin(coord[j], specie) / one_MeV
-                         << std::setw(20) << amp * (sqrt(lambda) / s) * M_8PI * distro[j] * Sqr(coord[j])
-                         << std::endl;
-      };
+   output_sda_file << std::setprecision(8);
+   for(j = 0; j < Np; j++) {
+      output_sda_file << std::setw(20) << EnrKin(coord[j], specie) / one_MeV
+                      << std::setw(20) << amp * (sqrt(lambda) / s) * M_8PI * distro[j] * Sqr(coord[j])
+                      << std::endl;
+   };
 
 // Close output distro file
-      output_sda_file.close();
+   output_sda_file.close();
 
 // Integrate spectrum to obtain number density
-      S = 0.0;
-      for(j = 0; j < Np; j++) S += distro[j] * Sqr(coord[j]) * dp_arr[j];
-      std::cout << S * amp * (sqrt(lambda) / s) * M_8PI << std::endl;
-   };
+   S = 0.0;
+   for(j = 0; j < Np; j++) S += distro[j] * Sqr(coord[j]) * dp_arr[j];
+   std::cout << S * amp * (sqrt(lambda) / s) * M_8PI << std::endl;
 
    return 0;
 };
