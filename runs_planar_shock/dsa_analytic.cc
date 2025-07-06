@@ -26,17 +26,19 @@ inline double N2(double z, double p, double t)
    return amp * sqrt(Cube(p0 / p)) * exp(U_dn * z / (2.0 * kappa_dn)) * (exp(-b) * erfc(d - c) * a + exp(b) * erfc(d + c) / a);
 };
 
+// Phase-space density upstream AND downstream
+inline double N12(double z, double p, double t)
+{
+   if (z < 0.0) N1(z, p, t);
+   else N2(z, p, t);
+};
+
 // Integral in momentum
-double MomentumIntegral(double z, double t)
+inline double MomentumIntegral(double z, double t)
 {
    int i;
    double S = 0.0;
-   if (z < 0.0) {
-      for (i = 0; i < Np; i++) S += N1(z, p_arr[i], t) * Sqr(p_arr[i]) * dp_arr[i];
-   }
-   else {
-      for (i = 0; i < Np; i++) S += N2(z, p_arr[i], t) * Sqr(p_arr[i]) * dp_arr[i];
-   };
+   for (i = 0; i < Np; i++) S += N12(z, p_arr[i], t) * Sqr(p_arr[i]) * dp_arr[i];
    return S * M_4PI;
 };
 
@@ -71,7 +73,7 @@ int main(int argc, char** argv)
       for (j = 0; j < Np; j++) {
 // Output to file
          dsa_analytic_file << std::setw(16) << EnrKin(p_arr[j], specie) / one_MeV
-                           << std::setw(16) << N2(z_spectrum, p_arr[j], t_arr[i]) * M_4PI * Sqr(p_arr[j])
+                           << std::setw(16) << N12(z_spectrum, p_arr[j], t_arr[i]) * M_4PI * Sqr(p_arr[j])
                            << std::endl;
       };
       dsa_analytic_file.close();
