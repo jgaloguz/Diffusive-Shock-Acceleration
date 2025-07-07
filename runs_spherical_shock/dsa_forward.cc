@@ -217,7 +217,7 @@ int main(int argc, char** argv)
    double power_law_T = 0.0;
    container.Insert(power_law_T);
 
-// Power of kinetic energy dependance
+// Power of radial dependance
    double power_law_r = 1.0;
    container.Insert(power_law_r);
 
