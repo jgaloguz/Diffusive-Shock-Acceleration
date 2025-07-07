@@ -723,18 +723,11 @@ double DiffusionKineticEnergyRadialDistancePowerLaw::GetDirectionalDerivative(in
 {
    double r = _pos.Norm();
 // Note that this doesn't work near the origin where the radial distance is close to zero.
- if ((0 <= xyz) && (xyz <= 2))      {
-        if (stream_dep_idx == 0.0) {
-            return Kappa[comp_eval] * pow_law_r * _pos[xyz] / Sqr(r);
-        }        
-        else {
-            if (r < r_sh) {
-                return Kappa[comp_eval] * pow_law_r * _pos[xyz] / Sqr(r);
-            }
-            else return 0.0;
-        }
-    }
-        return 0.0;
+   if ((0 <= xyz) && (xyz <= 2)) {
+      if (stream_dep_idx == 0 || r < r_sh) return Kappa[comp_eval] * pow_law_r * _pos[xyz] / Sqr(r);      
+      else return Kappa[comp_eval] * 2.0 * (_spdata.gradUvec.row[xyz] * _spdata.Uvec) / Sqr(_spdata.Uvec.Norm());
+   }
+   return 0.0;
 };
 
 /*!
