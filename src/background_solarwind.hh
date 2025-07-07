@@ -15,7 +15,7 @@ This file is part of the SPECTRUM suite of scientific numerical simulation codes
 namespace Spectrum {
 
 //! Method for computing derivatives (0: analytical, 1: numerical)
-#define SOLARWIND_DERIVATIVE_METHOD 1
+#define SOLARWIND_DERIVATIVE_METHOD 0
 
 //! Heliospheric current sheet (0: disabled, 1: flat, 2: wavy (Jokipii-Thomas 1981) and static, 3: wavy and time-dependent).
 #define SOLARWIND_CURRENT_SHEET 0

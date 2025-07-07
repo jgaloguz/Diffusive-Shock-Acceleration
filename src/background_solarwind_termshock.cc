@@ -199,6 +199,7 @@ void BackgroundSolarWindTermShock::EvaluateBackgroundDerivatives(void)
    };
    if (BITS_RAISED(_spdata._mask, BACKGROUND_gradB)) {
 //TODO: complete
+      _spdata.gradBvec = gm_zeros;
    };
    if (BITS_RAISED(_spdata._mask, BACKGROUND_gradE)) {
       _spdata.gradEvec = -((_spdata.gradUvec ^ _spdata.Bvec) + (_spdata.Uvec ^ _spdata.gradBvec)) / c_code;
