@@ -12,9 +12,9 @@ t_arr = np.loadtxt("dsa_results/dsa_analytic_time.dat")
 dsa_analytic_pos = [np.loadtxt("dsa_results/dsa_analytic_pos_{:d}.dat".format(t)) for t in range(np.size(t_arr))]
 dsa_analytic_mom = [np.loadtxt("dsa_results/dsa_analytic_mom_{:d}.dat".format(t)) for t in range(np.size(t_arr))]
 if which_variable == "pos" or which_variable == "both":
-dsa_simulated_pos = [np.loadtxt("dsa_results/dsa_" + which_time_flow + "_pos_{:d}_pp.dat".format(t)) for t in range(Nt_low, Nt_high)]
+   dsa_simulated_pos = [np.loadtxt("dsa_results/dsa_" + which_time_flow + "_pos_{:d}_pp.dat".format(t)) for t in range(Nt_low, Nt_high)]
 if which_variable == "mom" or which_variable == "both":
-dsa_simulated_mom = [np.loadtxt("dsa_results/dsa_" + which_time_flow + "_mom_{:d}_pp.dat".format(t)) for t in range(Nt_low, Nt_high)]
+   dsa_simulated_mom = [np.loadtxt("dsa_results/dsa_" + which_time_flow + "_mom_{:d}_pp.dat".format(t)) for t in range(Nt_low, Nt_high)]
 
 # Plot
 fig = plt.figure(figsize=(15, 10), layout='tight')

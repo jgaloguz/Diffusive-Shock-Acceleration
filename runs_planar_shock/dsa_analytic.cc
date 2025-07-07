@@ -29,8 +29,8 @@ inline double N2(double z, double p, double t)
 // Phase-space density upstream AND downstream
 inline double N12(double z, double p, double t)
 {
-   if (z < 0.0) N1(z, p, t);
-   else N2(z, p, t);
+   if (z < 0.0) return N1(z, p, t);
+   else return N2(z, p, t);
 };
 
 // Integral in momentum
