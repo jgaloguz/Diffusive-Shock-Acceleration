@@ -1,5 +1,6 @@
 #include "src/server_config.hh"
 #include "src/background_solarwind_termshock.hh"
+#include "src/diffusion_other.hh"
 #include "dsa_common.hh"
 #include <iostream>
 #include <iomanip>
@@ -11,15 +12,21 @@ using namespace Spectrum;
 int main(int argc, char** argv)
 {
    int i;
-   BackgroundSolarWindTermShock background;
+   double Kpara, dKpara_dx;
    std::ofstream plot_file;
-   SpatialData spdata;
    DataContainer container;
    GeoVector pos, mom;
+   SpatialData spdata;
+   BackgroundSolarWindTermShock background;
+   DiffusionKineticEnergyRadialDistancePowerLaw diffusion;
 
    ReadParams();
    DefineArrays();
    spdata._mask = BACKGROUND_U | BACKGROUND_B | BACKGROUND_gradU;
+
+//--------------------------------------------------------------------------------------------------
+// Background
+//--------------------------------------------------------------------------------------------------
 
    container.Clear();
 
@@ -65,6 +72,49 @@ int main(int argc, char** argv)
 
    background.SetupObject(container);
 
+//--------------------------------------------------------------------------------------------------
+// Diffusion model
+//--------------------------------------------------------------------------------------------------
+
+   container.Clear();
+
+// Reference diffusion coefficient
+   container.Insert(kappa_up);
+
+// Normalization of kinetic energy
+   double T0 = one_MeV;
+   container.Insert(T0);
+
+// Normalization of radius
+   container.Insert(R_sh);
+
+// Power of kinetic energy dependance
+   double power_law_T = 0.0;
+   container.Insert(power_law_T);
+
+// Power of radial dependance
+   double power_law_r = 1.0;
+   container.Insert(power_law_r);
+
+// Ratio of perpendicular to parallel diffusion
+   double kap_rat = 0.0;
+   container.Insert(kap_rat);
+
+// Downstream dependance index
+   int stream_dep_idx = 1;
+   container.Insert(stream_dep_idx);
+
+// Upstream flow at the start of shock
+   container.Insert(U_up);
+
+// Shock position
+   container.Insert(R_sh);
+
+// Shock width
+   container.Insert(w_sh);
+
+   diffusion.SetupObject(container);
+
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 
 // Parameters for plotting
@@ -80,10 +130,14 @@ int main(int argc, char** argv)
    plot_file.open("dsa_results/solarwind.dat");
    for (i = 0; i < pts; i++) {
       background.GetFields(0.0, pos, mom, spdata);
+      Kpara = diffusion.GetComponent(1, 0.0, pos, mom, spdata);
+      dKpara_dx = diffusion.GetDirectionalDerivative(0);
       plot_file << std::setw(18) << pos[0]
                 << std::setw(18) << spdata.Uvec.Norm() * unit_velocity_fluid
                 << std::setw(18) << spdata.Bmag * unit_magnetic_fluid
                 << std::setw(18) << spdata.divU() * unit_velocity_fluid / unit_length_fluid
+                << std::setw(18) << Kpara * unit_diffusion_fluid
+                << std::setw(18) << dKpara_dx * unit_diffusion_fluid / unit_length_fluid
                 << std::endl;
       pos[0] += dr_plot;
    };

@@ -202,6 +202,8 @@ dsa_plot_background_SOURCES = dsa_plot_background.cc \
    $(SPBL_SOURCE_DIR)/background_base.cc \
    $(SPBL_SOURCE_DIR)/background_base_visual.cc \
    $(SPBL_SOURCE_DIR)/background_base.hh \
+   $(SPBL_SOURCE_DIR)/diffusion_other.cc \
+   $(SPBL_SOURCE_DIR)/diffusion_other.hh \
    $(SPBL_SOURCE_DIR)/diffusion_base.cc \
    $(SPBL_SOURCE_DIR)/diffusion_base.hh \
    $(SPBL_SOURCE_DIR)/server_base.cc \
