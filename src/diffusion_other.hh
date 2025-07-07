@@ -468,7 +468,7 @@ const std::string diff_name_kinetic_energy_radial_distance_power_law = "Diffusio
 \author Vladimir Florinski
 \author Swati Sharma
 
-Parameters: (DiffusionBase), double kap0, double T0, double r0, double pow_law_T, double pow_law_r, double kap_rat, int stream_dep_idx, double u_up, double r_sh, double w_sh
+Parameters: (DiffusionBase), double kap0, double T0, double r0, double pow_law_T, double pow_law_r, double kap_rat, int stream_dep_idx, double u_up, double w_sh, double s_sh
 */
 class DiffusionKineticEnergyRadialDistancePowerLaw : public DiffusionBase {
 
@@ -498,12 +498,15 @@ protected:
 //! Upstream flow (persistent)
    double u_up;
 
-//! Distance shock (persistent)
-   double r_sh;
-
 //! Width of shock (persistent)
    double w_sh;
    
+//! Shock strength (persistent)
+   double s_sh;
+
+//! Ratio of downstream to upstream value (persistent)
+   double dn_up_rat;
+
 //! Set up the diffusion model based on "params"
    void SetupDiffusion(bool construct) override;
 

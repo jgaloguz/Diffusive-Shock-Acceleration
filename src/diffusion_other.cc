@@ -693,8 +693,10 @@ void DiffusionKineticEnergyRadialDistancePowerLaw::SetupDiffusion(bool construct
    container.Read(kap_rat);
    container.Read(stream_dep_idx);
    container.Read(u_up);
-   container.Read(r_sh);
    container.Read(w_sh);
+   container.Read(s_sh);
+
+   dn_up_rat = Sqr(1.0 / s_sh);
 };
 
 /*!
@@ -705,10 +707,10 @@ void DiffusionKineticEnergyRadialDistancePowerLaw::SetupDiffusion(bool construct
 void DiffusionKineticEnergyRadialDistancePowerLaw::EvaluateDiffusion(void)
 {
    double r = _pos.Norm();
-   double y = (r - r_sh) / w_sh;
    if (comp_eval == 2) return;
-   if (stream_dep_idx == 0 || r < r_sh) Kappa[1] = kap0 * pow(EnrKin(_mom[0], specie) / T0, pow_law_T) * pow(r / r0, pow_law_r);
-   else Kappa[1] = kap0 * pow(EnrKin(_mom[0], specie) / T0, pow_law_T) * Sqr(_spdata.Uvec.Norm() / u_up);
+   if (stream_dep_idx == 0 || r < r0) Kappa[1] = kap0 * pow(EnrKin(_mom[0], specie) / T0, pow_law_T) * pow(r / r0, pow_law_r);
+   else if (r < r0 + w_sh) Kappa[1] = kap0 * pow(EnrKin(_mom[0], specie) / T0, pow_law_T) * Sqr(_spdata.Uvec.Norm() / u_up);
+   else Kappa[1] = kap0 * pow(EnrKin(_mom[0], specie) / T0, pow_law_T) * dn_up_rat;
    Kappa[0] = kap_rat * Kappa[1];
 };
 
@@ -724,9 +726,10 @@ double DiffusionKineticEnergyRadialDistancePowerLaw::GetDirectionalDerivative(in
    double r = _pos.Norm();
 // Note that this doesn't work near the origin where the radial distance is close to zero.
    if ((0 <= xyz) && (xyz <= 2)) {
-      if (stream_dep_idx == 0 || r < r_sh) return Kappa[comp_eval] * pow_law_r * _pos[xyz] / Sqr(r);      
-      else return Kappa[comp_eval] * 2.0 * (_spdata.gradUvec.row[xyz] * _spdata.Uvec) / Sqr(_spdata.Uvec.Norm());
-   }
+      if (stream_dep_idx == 0 || r < r0) return Kappa[comp_eval] * pow_law_r * _pos[xyz] / Sqr(r);      
+      else if (r < r0 + w_sh) return Kappa[comp_eval] * 2.0 * (_spdata.gradUvec.row[xyz] * _spdata.Uvec) / Sqr(_spdata.Uvec.Norm());
+      else return 0.0;
+   };
    return 0.0;
 };
 

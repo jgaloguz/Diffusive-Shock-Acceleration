@@ -232,11 +232,11 @@ int main(int argc, char** argv)
 // Upstream flow at the start of shock
    container.Insert(U_up);
 
-// Shock position
-   container.Insert(R_sh);
-
 // Shock width
    container.Insert(w_sh);
+
+// Spherical shock strength
+   container.Insert(s);
 
    simulation->AddDiffusion(DiffusionKineticEnergyRadialDistancePowerLaw(), container);
 
