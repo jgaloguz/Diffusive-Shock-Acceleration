@@ -107,11 +107,11 @@ int main(int argc, char** argv)
 // Upstream flow at the start of shock
    container.Insert(U_up);
 
-// Shock position
-   container.Insert(R_sh);
-
 // Shock width
    container.Insert(w_sh);
+
+// Spherical shock strength
+   container.Insert(s);
 
    diffusion.SetupObject(container);
 
@@ -125,6 +125,8 @@ int main(int argc, char** argv)
    pos[1] = 0.0;
    pos[2] = 0.0;
    mom[0] = p_inj;
+   mom[1] = 0.0;
+   mom[2] = 0.0;
 
 // Plot
    plot_file.open("dsa_results/solarwind.dat");
@@ -134,7 +136,6 @@ int main(int argc, char** argv)
       dKpara_dx = diffusion.GetDirectionalDerivative(0);
       plot_file << std::setw(18) << pos[0]
                 << std::setw(18) << spdata.Uvec.Norm() * unit_velocity_fluid
-                << std::setw(18) << spdata.Bmag * unit_magnetic_fluid
                 << std::setw(18) << spdata.divU() * unit_velocity_fluid / unit_length_fluid
                 << std::setw(18) << Kpara * unit_diffusion_fluid
                 << std::setw(18) << dKpara_dx * unit_diffusion_fluid / unit_length_fluid
