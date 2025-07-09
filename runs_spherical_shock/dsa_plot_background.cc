@@ -135,6 +135,7 @@ int main(int argc, char** argv)
       Kpara = diffusion.GetComponent(1, 0.0, pos, mom, spdata);
       dKpara_dx = diffusion.GetDirectionalDerivative(0);
       plot_file << std::setw(18) << pos[0]
+                << std::setw(18) << spdata.dmax
                 << std::setw(18) << spdata.Uvec.Norm() * unit_velocity_fluid
                 << std::setw(18) << spdata.divU() * unit_velocity_fluid / unit_length_fluid
                 << std::setw(18) << Kpara * unit_diffusion_fluid
