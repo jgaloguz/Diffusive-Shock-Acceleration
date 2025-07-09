@@ -118,19 +118,15 @@ int main(int argc, char** argv)
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 
 // Parameters for plotting
-   int pts = Nr;
-   if(argc > 1) pts = atoi(argv[1]);
-   double dr_plot = (rf - r0) / (pts-1);
-   pos[0] = r0;
-   pos[1] = 0.0;
-   pos[2] = 0.0;
+   pos = gv_zeros;
    mom[0] = p_inj;
    mom[1] = 0.0;
    mom[2] = 0.0;
 
 // Plot
    plot_file.open("dsa_results/solarwind.dat");
-   for (i = 0; i < pts; i++) {
+   for (i = 0; i < Nr; i++) {
+      pos[0] = r_arr[i];
       background.GetFields(0.0, pos, mom, spdata);
       Kpara = diffusion.GetComponent(1, 0.0, pos, mom, spdata);
       dKpara_dx = diffusion.GetDirectionalDerivative(0);
@@ -141,7 +137,6 @@ int main(int argc, char** argv)
                 << std::setw(18) << Kpara * unit_diffusion_fluid
                 << std::setw(18) << dKpara_dx * unit_diffusion_fluid / unit_length_fluid
                 << std::endl;
-      pos[0] += dr_plot;
    };
    plot_file.close();
 

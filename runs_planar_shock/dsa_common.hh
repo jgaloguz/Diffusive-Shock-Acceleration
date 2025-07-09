@@ -81,11 +81,11 @@ void ReadParams(void)
    logp0 = log10(p0);
    logpf = log10(pf);
    dlogp = (logpf - logp0) / Np;
-   z0 = params[11] * one_au;
-   zf = params[12] * one_au;
+   z0 = params[12] * one_au;
+   zf = params[13] * one_au;
    dz = (zf - z0) / Nz;
-   t0 = params[13] * one_day;
-   tf = params[14] * one_day;
+   t0 = params[14] * one_day;
+   tf = params[15] * one_day;
    logt0 = log10(t0);
    logtf = log10(tf);
    dlogt = (logtf - logt0) / (Nt - 1);

@@ -35,7 +35,7 @@ namespace Spectrum {
 
 #if TRAJ_ADV_SAFETY_LEVEL == 2
 //! Largest length for single trajectory
-constexpr int max_trajectory_steps = 10000000;
+constexpr int max_trajectory_steps = 100000000;
 
 //! Largest number of time step adaptations for a single time step
 constexpr int max_time_adaptations = 100;

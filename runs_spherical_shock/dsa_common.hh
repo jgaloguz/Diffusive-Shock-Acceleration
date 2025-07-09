@@ -41,6 +41,7 @@ double logp0;                    // Logarithm of p0
 double logpf;                    // Logarithm of pf
 double dlogp;                    // Difference between logarithms of p0 and pf
 const int Nr = 100;              // Number of radial bins
+int log_rbins;                   // Boolean flag to indicate linear or logarithmic radial bins
 double r0;                       // Lower limit of radial range
 double rf;                       // Upper limit of radial range
 double dr;                       // Radial bin size
@@ -54,10 +55,11 @@ double dlogt;                    // Difference between logarithms of t0 and tf
 double p_arr[Np];                // Momentum bin centers
 double dp_arr[Np];               // Momentum bin sizes
 double r_arr[Nr];                // Radial bin centers
+double dr_arr[Nr];               // Radial bin sizes
 double r_spectrum;               // Radial location where to plot spectrum
 double t_arr[Nt];                // Time bin centers
 
-const int N_params = 16;          // Number of parameters to read from file
+const int N_params = 17;          // Number of parameters to read from file
 double params[N_params];         // Array of parameters
 std::ifstream params_file;       // Parameter file
 
@@ -75,7 +77,7 @@ void ReadParams(void)
    r_spectrum = params[3] * one_au;
    p_inj = Mom(params[4] * one_MeV, specie);
    s = params[5];
-   R_sh = params[15] * one_au;
+   R_sh = params[16] * one_au;
    U_up = params[6] / unit_velocity_fluid;
    U_dn = U_up / s;
    DeltaU = U_up - U_dn;
@@ -95,11 +97,13 @@ void ReadParams(void)
    logp0 = log10(p0);
    logpf = log10(pf);
    dlogp = (logpf - logp0) / Np;
-   r0 = params[11] * one_au;
-   rf = params[12] * one_au;
-   dr = (rf - r0) / Nr;
-   t0 = params[13] * one_day;
-   tf = params[14] * one_day;
+   log_rbins = params[11];
+   r0 = params[12] * one_au;
+   rf = params[13] * one_au;
+   if (log_rbins) dr = (log10(rf) - log10(r0)) / Nr;
+   else dr = (rf - r0) / Nr;
+   t0 = params[14] * one_day;
+   tf = params[15] * one_day;
    logt0 = log10(t0);
    logtf = log10(tf);
    dlogt = (logtf - logt0) / (Nt - 1);
@@ -115,7 +119,16 @@ void DefineArrays(void)
       dp_arr[i] = pow(10.0, logp0 + (i+1) * dlogp) - pow(10.0, logp0 + i * dlogp);
    };
 // Radius
-   for (i = 0; i < Nr; i++) r_arr[i] = r0 + (i+0.5) * dr;
+   for (i = 0; i < Nr; i++) {
+      if (log_rbins) {
+         r_arr[i] = pow(10.0, log10(r0) + (i+0.5) * dr);
+         dr_arr[i] = pow(10.0, log10(r0) + (i+1) * dr) - pow(10.0, log10(r0) + i * dr);
+      }
+      else {
+         r_arr[i] = r0 + (i+0.5) * dr;
+         dr_arr[i] = dr;
+      };
+   };
 // Time
    for (i = 0; i < Nt; i++) t_arr[i] = pow(10.0, logt0 + i * dlogt);
 };
