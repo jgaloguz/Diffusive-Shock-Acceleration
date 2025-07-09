@@ -55,7 +55,6 @@ void BackgroundSolarWindTermShock::SetupBackground(bool construct)
    container.Read(s_TS);
 
    s_TS_inv = 1.0 / s_TS;
-   dmax_TS = dmax_fraction * w_TS;
 };
 
 /*!
@@ -223,12 +222,15 @@ void BackgroundSolarWindTermShock::EvaluateDmax(void)
    BackgroundSolarWind::EvaluateDmax();
 
 // Reduce "dmax" around the shock. This implemenation assumes that "dmax" = "dmax0" near "r_TS" by default.
-   double r = (_pos - r0).Norm();
-   if (r_TS - dmax0 < r && r < r_TS + w_TS + dmax0) {
-      if (r < r_TS) _spdata.dmax += (dmax_TS - dmax0) * (r - r_TS + dmax0) / dmax0;
-      else if (r > r_TS + w_TS) _spdata.dmax -= (dmax_TS - dmax0) * (r - r_TS - w_TS - dmax0) / dmax0;
-      else _spdata.dmax = dmax_TS;
-   };
+   double dr_shock = ((_pos - r0).Norm() - r_TS - 0.5 * w_TS) / w_TS;
+   _spdata.dmax = fmin(dmax_fraction * w_TS * fmax(1.0, fabs(dr_shock)), _spdata.dmax);
+
+   // double r = (_pos - r0).Norm();
+   // if (r_TS - dmax0 < r && r < r_TS + w_TS + dmax0) {
+   //    if (r < r_TS) _spdata.dmax += (dmax_TS - dmax0) * (r - r_TS + dmax0) / dmax0;
+   //    else if (r > r_TS + w_TS) _spdata.dmax -= (dmax_TS - dmax0) * (r - r_TS - w_TS - dmax0) / dmax0;
+   //    else _spdata.dmax = dmax_TS;
+   // };
 };
 
 };

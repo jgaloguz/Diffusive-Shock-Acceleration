@@ -52,9 +52,6 @@ protected:
 //! Inverse of s_TS (persistent)
    double s_TS_inv;
 
-//! Maximum displacement in the shock region (persistent)
-   double dmax_TS;
-
 //! Set up the field evaluator based on "params"
    void SetupBackground(bool construct) override;
 
