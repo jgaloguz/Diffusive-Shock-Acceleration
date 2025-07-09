@@ -57,8 +57,12 @@ int main(int argc, char** argv)
    DefineArrays();
    std::cout << "r_diff = " << (kappa_up / U_up) / one_au << " au" << std::endl;
    std::cout << "r_spectrum = " << r_spectrum / one_au << " au" << std::endl;
+   std::cout << "w_shock = " << w_sh / one_au << " au" << std::endl;
    std::cout << "t_acc = " << tau / one_day << " days" << std::endl;
    std::cout << "t_final = " << t_arr[i] / one_day << " days" << std::endl;
+   std::cout << "min dt_adv = " << w_sh / (U_up + divK) / one_day << " days" << std::endl;
+   std::cout << "max dt_dif = " << Sqr(w_sh) / kappa_dn << " days" << std::endl;
+   std::cout << "eta = " << eta_up << std::endl;
 
 // Number density vs position (integrate over momentum)
    dsa_analytic_file.open("dsa_results/dsa_analytic_pos_" + std::to_string(i) + ".dat");

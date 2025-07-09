@@ -312,7 +312,7 @@ int main(int argc, char** argv)
       container.Insert(maxval2);
 
 // Linear or logarithmic bins
-      MultiIndex log_bins2(0, 1, 0);
+      MultiIndex log_bins2(log_rbins, 1, 0);
       container.Insert(log_bins2);
 
 // Add outlying events to the end bins
@@ -375,17 +375,6 @@ int main(int argc, char** argv)
       simulation->PrintDistro1D(i + 1, 0, simulation_files_prefix + "pos_" + std::to_string(i) + ".dat", false);
 // Spectrum vs momentum
       simulation->PrintDistro2D(i + 1, 0, 1, simulation_files_prefix + "mom_" + std::to_string(i) + ".dat", false);
-   };
-
-   double divK = (kappa_up - kappa_dn) / w_sh;
-   if (MPI_Config::is_master) {
-      std::cout << "divK = " << divK << std::endl;
-      std::cout << "width = " << w_sh << std::endl;
-      std::cout << "K / U (up) = " << kappa_up / U_up << std::endl;
-      std::cout << "K / U (dn) = " << kappa_dn / U_dn << std::endl;
-      std::cout << "K / U^2 = " << 0.25 * tau / one_day << std::endl;
-      std::cout << "min dt_adv = " << w_sh / (U_up + divK) << std::endl;
-      std::cout << "max dt_dif = " << Sqr(w_sh) / kappa_dn << std::endl;
    };
 
    return 0;

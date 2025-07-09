@@ -52,8 +52,11 @@ int main(int argc, char** argv)
    DefineArrays();
    std::cout << "z_diff = " << kappa_up / U_up / one_au << " au" << std::endl;
    std::cout << "z_spectrum = " << z_spectrum / one_au << " au" << std::endl;
+   std::cout << "w_shock = " << w_sh / one_au << " au" << std::endl;
    std::cout << "t_acc = " << tau / one_day << " days" << std::endl;
    std::cout << "t_final = " << t_arr[Nt-1] / one_day << " days" << std::endl;
+   std::cout << "min dt_adv = " << w_sh / (U_up + divK) / one_day << " days" << std::endl;
+   std::cout << "max dt_dif = " << Sqr(w_sh) / kappa_dn << " days" << std::endl;
 
 // Loop over times
    for (i = 0; i < Nt; i++) {

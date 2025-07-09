@@ -8,6 +8,7 @@ Nt_low = int(sys.argv[1])
 Nt_high = int(sys.argv[2])
 which_variable = sys.argv[3]
 which_time_flow = sys.argv[4]
+params = np.loadtxt("params.dat")
 t_arr = np.loadtxt("dsa_results/dsa_analytic_time.dat")
 dsa_analytic_pos = np.loadtxt("dsa_results/dsa_analytic_pos_{:d}.dat".format(np.size(t_arr)-1))
 dsa_analytic_mom = np.loadtxt("dsa_results/dsa_analytic_mom_{:d}.dat".format(np.size(t_arr)-1))
@@ -27,6 +28,8 @@ if which_variable == "pos" or which_variable == "both":
       ax1.semilogy(dsa_simulated_pos[t-Nt_low][:,0], dsa_simulated_pos[t-Nt_low][:,1],
                    color=colors[t], linestyle="", marker="o",
                    label="t = {:.2e} day(s)".format(t_arr[t]))
+if params[11]:
+   ax1.set_xscale('log')
 ax1.set_xlabel('$x$ (au)', fontsize=20)
 ax1.set_ylabel('$n$', fontsize=20)
 ax1.tick_params(axis='x', labelsize=20)
