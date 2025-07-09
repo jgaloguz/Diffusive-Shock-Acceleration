@@ -60,8 +60,8 @@ int main(int argc, char** argv)
    std::cout << "w_shock = " << w_sh / one_au << " au" << std::endl;
    std::cout << "t_acc = " << tau / one_day << " days" << std::endl;
    std::cout << "t_final = " << t_arr[i] / one_day << " days" << std::endl;
-   std::cout << "min dt_adv = " << w_sh / (U_up + divK) / one_day << " days" << std::endl;
-   std::cout << "max dt_dif = " << Sqr(w_sh) / kappa_dn << " days" << std::endl;
+   std::cout << "min dt_adv = " << w_sh / (U_up + (kappa_up - kappa_dn) / w_sh) / one_day << " days" << std::endl;
+   std::cout << "max dt_dif = " << Sqr(w_sh) / kappa_dn / one_day << " days" << std::endl;
    std::cout << "eta = " << eta_up << std::endl;
 
 // Number density vs position (integrate over momentum)
