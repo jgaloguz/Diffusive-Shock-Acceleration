@@ -48,7 +48,7 @@ int main(int argc, char** argv)
       output_sda_file << std::setprecision(8);
       for(j = 0; j < Nr; j++) {
          output_sda_file << std::setw(20) << coord1[j][0] / one_au
-                         << std::setw(20) << sum_c[j][0] / (Srq(r_arr[j] / R_sh) * dr_arr[j]) * Q * tf / n_traj
+                         << std::setw(20) << sum_c[j][0] / (Sqr(r_arr[j] / R_sh) * dr_arr[j]) * Q * tf / n_traj
                          << std::endl;
       };
 
@@ -91,7 +91,7 @@ int main(int argc, char** argv)
       else j = (r_spectrum - r0) / dr;
       for(k = 0; k < Np; k++) {
          output_sda_file << std::setw(20) << EnrKin(coord2[j][k], specie) / one_MeV
-                         << std::setw(20) << sum_c[j][k] / (Srq(r_arr[j] / R_sh) * dr_arr[j] * dp_arr[k]) * Q * tf / n_traj
+                         << std::setw(20) << sum_c[j][k] / (Sqr(r_arr[j] / R_sh) * dr_arr[j] * dp_arr[k]) * Q * tf / n_traj
                          << std::endl;
       };
 
