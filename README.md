@@ -77,18 +77,18 @@ The units are mentioned within parentheses.
  - *Parameter 3*: maximum spatial displacement per step for the trajectories near the shock given as a fraction of the shock width (unitless).
  - *Parameter 4*: spatial/radial location where to compute/plot spectrum (au).
  - *Parameter 5*: injection momentum (MeV).
- - *Parameter 6*: shock strength, which should be in the range (1,4] (unitless).
- - *Parameter 7*: upstream flow speed near the shock (cm / s).
- - *Parameter 8*: upstream diffusion coefficient near the shock (cm^2 / s).
- - *Parameter 9*: injection rate (1 / cm^2 / s)
- - *Parameter 10*: lower bound of momentum range (MeV). **Used only in spherical shock simulations**. For the planar shock problem, the injection momentum is used as the lower bound of the momentum range.
- - *Parameter 11*: upper bound of momentum range (MeV).
- - *Parameter 12*: Boolean flag (0 or 1) to indicate whether bins should be logarithmic (1) or linear (0). **Used only in spherical shock simulations**. For the planar shock problem, the spatial bins are always linear.
- - *Parameter 13*: lower bound of spatial/radius range (au).
- - *Parameter 14*: upper bound of spatial/radius range (au).
- - *Parameter 15*: lower bound of temporal range (day).
- - *Parameter 16*: upper bound of temporal range (day).
- - *Parameter 17*: radius of spherical shock (au). **Used only in spherical shock simulations**. For the planar shock problem, the shock is placed at x = 0.
+ - *Parameter 6*: shock strength, which should be in the range [1,4] (unitless).
+ - *Parameter 7*: location/radius of spherical shock (au). **Used only in spherical shock simulations**. For the planar shock problem, the shock is placed at x = 0.
+ - *Parameter 8*: upstream flow speed near the shock (cm / s).
+ - *Parameter 9*: upstream diffusion coefficient near the shock (cm^2 / s).
+ - *Parameter 10*: injection rate (1 / cm^2 / s)
+ - *Parameter 11*: lower bound of momentum range (MeV). **Used only in spherical shock simulations**. For the planar shock problem, the injection momentum is used as the lower bound of the momentum range.
+ - *Parameter 12*: upper bound of momentum range (MeV).
+ - *Parameter 13*: Boolean flag (0 or 1) to indicate whether spatial bins should be logarithmic (1) or linear (0). **Used only in spherical shock simulations**. For the planar shock problem, the spatial bins are always linear.
+ - *Parameter 14*: lower bound of spatial/radius range (au).
+ - *Parameter 15*: upper bound of spatial/radius range (au).
+ - *Parameter 16*: lower bound of temporal range (day).
+ - *Parameter 17*: upper bound of temporal range (day).
 
  Note that the default binning resolutions of the momentum, spatial, and temporal ranges are 100, 100, and 5 bins respectively.
  These do not affect the physics or the execution time, and should be the same across all runs for a fair comparison.
