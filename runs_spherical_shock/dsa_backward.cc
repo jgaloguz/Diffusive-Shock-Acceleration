@@ -3,6 +3,7 @@
 #include "src/background_solarwind_termshock.hh"
 #include "src/diffusion_other.hh"
 #include "src/boundary_time.hh"
+#include "src/boundary_space.hh"
 #include "src/boundary_momentum.hh"
 #include "src/initial_time.hh"
 #include "src/initial_space.hh"
