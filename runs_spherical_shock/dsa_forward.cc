@@ -122,9 +122,9 @@ int main(int argc, char** argv)
 
    simulation->AddInitial(InitialMomentumShell(), container);
 
-//----------------------------------------------------------------------------------------------------------------------------------------------------
-// Spatial Inner boundary
-//----------------------------------------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+// Spatial inner boundary
+//--------------------------------------------------------------------------------------------------
 
    container.Clear();
 
@@ -132,7 +132,7 @@ int main(int argc, char** argv)
    int max_crossings_Sun = 1;
    container.Insert(max_crossings_Sun);
 
-// Action Vector
+// Action vector
    std::vector<int> actions_Sun;
    actions_Sun.push_back(-1);
    for (i = 0; i < Nt; i++) actions_Sun.push_back(-1);

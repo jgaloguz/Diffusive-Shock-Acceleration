@@ -3,6 +3,7 @@
 #include "src/background_solarwind_termshock.hh"
 #include "src/diffusion_other.hh"
 #include "src/boundary_time.hh"
+#include "src/boundary_space.hh"
 #include "src/boundary_momentum.hh"
 #include "src/initial_time.hh"
 #include "src/initial_space.hh"
@@ -181,6 +182,32 @@ int main(int argc, char** argv)
    container.Insert(outer_shell_radius);
 
    simulation->AddBoundary(BoundaryMomentumInjectRestrictShell(), container);
+
+//--------------------------------------------------------------------------------------------------
+// Spatial inner boundary
+//--------------------------------------------------------------------------------------------------
+
+   container.Clear();
+
+// Max crossings
+   int max_crossings_Sun = 1;
+   container.Insert(max_crossings_Sun);
+
+// Action vector
+   std::vector<int> actions_Sun;
+   actions_Sun.push_back(1);
+   actions_Sun.push_back(1);
+   actions_Sun.push_back(1);
+   container.Insert(actions_Sun);
+
+// Origin
+   container.Insert(gv_zeros);
+
+// Radius
+   double inner_boundary = 1.0 * one_au;
+   container.Insert(inner_boundary);
+
+   simulation->AddBoundary(BoundarySphereAbsorb(), container);
 
 //--------------------------------------------------------------------------------------------------
 // Diffusion model
