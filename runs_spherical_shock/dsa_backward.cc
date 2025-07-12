@@ -182,6 +182,32 @@ int main(int argc, char** argv)
 
    simulation->AddBoundary(BoundaryMomentumInjectRestrictShell(), container);
 
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+// Spatial Inner boundary
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+   container.Clear();
+
+// Max crossings
+   int max_crossings_Sun = 1;
+   container.Insert(max_crossings_Sun);
+
+// Action Vector
+   std::vector<int> actions_Sun;
+   actions_mom.push_back(1);
+   actions_mom.push_back(1);
+   actions_mom.push_back(1);
+   container.Insert(actions_Sun);
+
+// Origin
+   container.Insert(gv_zeros);
+
+// Radius
+   double inner_boundary = 1.0 * one_au;
+   container.Insert(inner_boundary);
+
+   simulation->AddBoundary(BoundarySphereAbsorb(), container);
+
 //--------------------------------------------------------------------------------------------------
 // Diffusion model
 //--------------------------------------------------------------------------------------------------
