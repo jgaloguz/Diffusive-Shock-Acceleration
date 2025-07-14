@@ -2,6 +2,7 @@
 #include "src/distribution_other.hh"
 #include "src/background_solarwind_termshock.hh"
 #include "src/diffusion_other.hh"
+#include "src/source_other.hh"
 #include "src/boundary_time.hh"
 #include "src/boundary_space.hh"
 #include "src/boundary_momentum.hh"
@@ -140,8 +141,8 @@ int main(int argc, char** argv)
 
 // Actions vector
    std::vector<int> actions_time;
-   actions_time.push_back(-1);
-   actions_time.push_back(-1);
+   // actions_time.push_back(-1);
+   // actions_time.push_back(-1);
    actions_time.push_back(1);
    container.Insert(actions_time);
 
@@ -153,7 +154,7 @@ int main(int argc, char** argv)
 //--------------------------------------------------------------------------------------------------
 // Injection boundary
 //--------------------------------------------------------------------------------------------------
-
+/*
    container.Clear();
 
 // Maximum crossings
@@ -182,7 +183,7 @@ int main(int argc, char** argv)
    container.Insert(outer_shell_radius);
 
    simulation->AddBoundary(BoundaryMomentumInjectRestrictShell(), container);
-
+*/
 //--------------------------------------------------------------------------------------------------
 // Spatial inner boundary
 //--------------------------------------------------------------------------------------------------
@@ -195,8 +196,8 @@ int main(int argc, char** argv)
 
 // Action vector
    std::vector<int> actions_Sun;
-   actions_Sun.push_back(1);
-   actions_Sun.push_back(1);
+   // actions_Sun.push_back(1);
+   // actions_Sun.push_back(1);
    actions_Sun.push_back(1);
    container.Insert(actions_Sun);
 
@@ -253,9 +254,32 @@ int main(int argc, char** argv)
    simulation->AddDiffusion(DiffusionKineticEnergyRadialDistancePowerLaw(), container);
 
 //--------------------------------------------------------------------------------------------------
-// Distribution 1 (time)
+// Source term
 //--------------------------------------------------------------------------------------------------
 
+   container.Clear();
+
+// Injection momentum
+   container.Insert(p_inj);
+
+// Center of spherical shock
+   container.Insert(gv_zeros);
+
+// Radius of spherical shock
+   container.Insert(R_sh);
+
+// Width of spherical shock
+   container.Insert(w_sh);
+
+// Rate at shock
+   container.Insert(Q);
+
+   simulation->AddSource(SourceSphericalShockInjection(), container);
+
+//--------------------------------------------------------------------------------------------------
+// Distribution 1 (time)
+//--------------------------------------------------------------------------------------------------
+/*
    container.Clear();
 
 // Number of bins
@@ -303,11 +327,11 @@ int main(int argc, char** argv)
    container.Insert(val_time1);
 
    simulation->AddDistribution(DistributionTimeUniform(), container);
-
+*/
 //--------------------------------------------------------------------------------------------------
 // Distribution 2 (position)
 //--------------------------------------------------------------------------------------------------
-
+/*
    container.Clear();
 
 // Number of bins
@@ -359,7 +383,7 @@ int main(int argc, char** argv)
    container.Insert(val_coord2);
 
    simulation->AddDistribution(DistributionPositionUniform(), container);
-
+*/
 //--------------------------------------------------------------------------------------------------
 // Distribution 3 (momentum)
 //--------------------------------------------------------------------------------------------------
@@ -431,9 +455,9 @@ int main(int argc, char** argv)
    simulation->DistroFileName(simulation_files_prefix);
    simulation->SetTasks(n_traj, batch_size);
    simulation->MainLoop();
-   simulation->PrintDistro1D(0, 0, simulation_files_prefix + "time_" + std::to_string(t_idx) + ".dat", false);
-   simulation->PrintDistro1D(1, 0, simulation_files_prefix + "pos_" + std::to_string(t_idx) + ".dat", false);
-   simulation->PrintDistro1D(2, 0, simulation_files_prefix + "mom_" + std::to_string(t_idx) + ".dat", false);
+   // simulation->PrintDistro1D(0, 0, simulation_files_prefix + "time_" + std::to_string(t_idx) + ".dat", false);
+   // simulation->PrintDistro1D(1, 0, simulation_files_prefix + "pos_" + std::to_string(t_idx) + ".dat", false);
+   simulation->PrintDistro1D(0, 0, simulation_files_prefix + "mom_" + std::to_string(t_idx) + ".dat", false);
 
    return 0;
 };

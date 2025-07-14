@@ -269,7 +269,7 @@ void DistributionMomentumUniform::EvaluateValue(void)
 
    if (val_coord == 0) this->_value = momentum;
    else {
-#if (TRAJ_TYPE == TRAJ_FOCUSED) || (TRAJ_TYPE == TRAJ_PARKER)
+#if (TRAJ_TYPE == TRAJ_FOCUSED) || (TRAJ_TYPE == TRAJ_PARKER) || (TRAJ_TYPE == TRAJ_PARKER_SOURCE)
 // Focused and Parker trajectories are already in locally spherical coordinates
    this->_value = momentum;
 #elif TRAJ_TYPE == TRAJ_FIELDLINE
@@ -551,7 +551,7 @@ void DistributionSpectrumKineticEnergyPowerLaw::SetupDistribution(bool construct
 */
 void DistributionSpectrumKineticEnergyPowerLaw::EvaluateValue(void)
 {
-#if (TRAJ_TYPE == TRAJ_FOCUSED) || (TRAJ_TYPE == TRAJ_PARKER)
+#if (TRAJ_TYPE == TRAJ_FOCUSED) || (TRAJ_TYPE == TRAJ_PARKER) || (TRAJ_TYPE == TRAJ_PARKER_SOURCE)
    this->_value[0] = EnrKin(this->_mom[0], this->specie);
 #elif TRAJ_TYPE == TRAJ_FIELDLINE
    this->_value[0] = EnrKin(this->_mom[2], this->specie);
@@ -568,7 +568,7 @@ void DistributionSpectrumKineticEnergyPowerLaw::EvaluateValue(void)
 void DistributionSpectrumKineticEnergyPowerLaw::SpectrumKineticEnergyPowerLawHot(void)
 {
    double mom2mag;
-#if (TRAJ_TYPE == TRAJ_FOCUSED) || (TRAJ_TYPE == TRAJ_PARKER)
+#if (TRAJ_TYPE == TRAJ_FOCUSED) || (TRAJ_TYPE == TRAJ_PARKER) || (TRAJ_TYPE == TRAJ_PARKER_SOURCE)
    mom2mag = this->_mom2[0];
 #elif TRAJ_TYPE == TRAJ_FIELDLINE
    mom2mag = this->_mom2[2];
@@ -860,8 +860,6 @@ void DistributionLossCone::RecordLossCone(void)
    else this->_weight = GeoVector(_spdata2.Bmag_min, _spdata2.Bmag_max, asin(sqrt(_spdata2.Bmag / _spdata2.Bmag_max)));
 };
 
-#if TRAJ_TYPE == TRAJ_PARKER
-
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 // DistributionDivergenceFlowPowerLaw
 //----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -939,7 +937,5 @@ void DistributionDivergenceFlowPowerLaw::DivergenceFlowPowerLawCold(void)
 {
    this->_weight = val_cold;
 };
-
-#endif
 
 };

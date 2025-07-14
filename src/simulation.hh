@@ -116,6 +116,9 @@ public:
 //! Add diffusion object (passthrough to trajectory)
    void AddDiffusion(const DiffusionBase& diffusion_in, const DataContainer& container_in);
 
+//! Add source object (passthrough to trajectory)
+   void AddSource(const SourceBase& source_in, const DataContainer& container_in);
+
 //! Restore distribution (stub)
    virtual void RestoreDistro(int distro);
 

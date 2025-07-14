@@ -14,6 +14,7 @@ This file is part of the SPECTRUM suite of scientific numerical simulation codes
 #include "distribution_base.hh"
 #include "background_base.hh"
 #include "diffusion_base.hh"
+#include "source_base.hh"
 #include "boundary_base.hh"
 #include "initial_base.hh"
 #include "common/rk_config.hh"
@@ -182,6 +183,9 @@ protected:
 //! Diffusion object (persistent)
    std::unique_ptr <DiffusionBase> diffusion = nullptr;
 
+//! Source term object (persistent)
+   std::unique_ptr <SourceBase> source = nullptr;
+
 //! Array of time boundary condition objects (persistent)
    std::vector <std::unique_ptr <BoundaryBase> > bcond_t;
 
@@ -258,6 +262,12 @@ protected:
 //! Slopes for momentum in RK step (transient)
    GeoVector slope_mom[MAX_RK_STAGES];
 
+//! Slopes for amplitude in RK step (transient)
+   double slope_amp[MAX_RK_STAGES] = {0.0};
+
+//! Slopes for (logarithm of) weight in RK step (transient)
+   double slope_wgt[MAX_RK_STAGES] = {0.0};
+
 //! Actual time step (transient)
    double dt;
 
@@ -266,6 +276,12 @@ protected:
 
 //! Time step from the adaptive scheme (transient)
    double dt_adaptive;
+
+//! Amplitude of stochastic trajectory integration (transient)
+   double _amp;
+
+//! Weight of stochastic trajectory integration (transient). This quantity is tracked via its logarithm through code execution and converted with an exponential prior to binning.
+   double _wgt;
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -321,7 +337,7 @@ protected:
    void CommonFields(double t_in, const GeoVector& pos_in, const GeoVector& mom_in, SpatialData& spdata);
 
 //! Compute the RK slopes
-   virtual void Slopes(GeoVector& slope_pos_istage, GeoVector& slope_mom_istage) = 0;
+   virtual void Slopes(GeoVector& slope_pos_istage, GeoVector& slope_mom_istage, double& slope_amp_istage, double& slope_wgt_istage) = 0;
 
 //! Compute the physical time step
    virtual void PhysicalStep(void) = 0;
@@ -380,6 +396,9 @@ public:
 
 //! Assign diffusion model parameters
    void AddDiffusion(const DiffusionBase& diffusion_in, const DataContainer& container_in);
+
+//! Assign source term parameters
+   void AddSource(const SourceBase& source_in, const DataContainer& container_in);
 
 //! Add a boundary condition
    void AddBoundary(const BoundaryBase& boundary_in, const DataContainer& container_in);

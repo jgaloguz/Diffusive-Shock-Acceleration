@@ -175,7 +175,7 @@ void DistributionTemplated<distroClass>::AddEvent(void)
 
 // Update the counts
    lin_bin = n_bins.LinIdx(bin);
-   distro[lin_bin] += _weight;
+   distro[lin_bin] += _weight * exp(_logwgt) + _amp;
    counts[lin_bin]++;
    n_events++;
 };

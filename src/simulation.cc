@@ -166,6 +166,18 @@ void SimulationWorker::AddDiffusion(const DiffusionBase& diffusion_in, const Dat
 
 /*!
 \author Juan G Alonso Guzman
+\date 07/14/2025
+\param[in] source_in Source object for type recognition
+\param[in] container_in Data container for initializating the source object
+*/
+void SimulationWorker::AddSource(const SourceBase& source_in, const DataContainer& container_in)
+{
+   trajectory->AddSource(source_in, container_in);
+   PrintMessage(__FILE__, __LINE__, "Source term added", MPI_Config::is_master);
+};
+
+/*!
+\author Juan G Alonso Guzman
 \date 09/14/2022
 */
 void SimulationWorker::SendDataToMaster(void)

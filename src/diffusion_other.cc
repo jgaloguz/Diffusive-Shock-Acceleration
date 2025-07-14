@@ -12,7 +12,7 @@ This file is part of the SPECTRUM suite of scientific numerical simulation codes
 
 namespace Spectrum {
 
-#if TRAJ_TYPE != TRAJ_PARKER
+#if (TRAJ_TYPE != TRAJ_PARKER) && (TRAJ_TYPE != TRAJ_PARKER_SOURCE)
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 // DiffusionIsotropicConstant methods
@@ -78,7 +78,7 @@ double DiffusionIsotropicConstant::GetMuDerivative(void)
 
 #endif
 
-#if TRAJ_TYPE != TRAJ_PARKER
+#if (TRAJ_TYPE != TRAJ_PARKER) && (TRAJ_TYPE != TRAJ_PARKER_SOURCE)
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 // DiffusionQLTConstant methods
@@ -148,7 +148,7 @@ void DiffusionQLTConstant::EvaluateDiffusion(void)
 
 #endif
 
-#if TRAJ_TYPE != TRAJ_PARKER
+#if (TRAJ_TYPE != TRAJ_PARKER) && (TRAJ_TYPE != TRAJ_PARKER_SOURCE)
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 // DiffusionWNLTConstant methods

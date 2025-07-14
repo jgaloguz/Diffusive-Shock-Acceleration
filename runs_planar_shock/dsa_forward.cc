@@ -2,6 +2,7 @@
 #include "src/distribution_other.hh"
 #include "src/background_smooth_shock.hh"
 #include "src/diffusion_other.hh"
+#include "src/source_base.hh"
 #include "src/boundary_time.hh"
 #include "src/initial_time.hh"
 #include "src/initial_space.hh"

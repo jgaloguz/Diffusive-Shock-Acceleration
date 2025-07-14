@@ -2,6 +2,7 @@
 #include "src/distribution_other.hh"
 #include "src/background_solarwind_termshock.hh"
 #include "src/diffusion_other.hh"
+#include "src/source_other.hh"
 #include "src/boundary_time.hh"
 #include "src/boundary_space.hh"
 #include "src/initial_time.hh"
@@ -239,6 +240,18 @@ int main(int argc, char** argv)
    container.Insert(s);
 
    simulation->AddDiffusion(DiffusionKineticEnergyRadialDistancePowerLaw(), container);
+
+//--------------------------------------------------------------------------------------------------
+// Source term
+//--------------------------------------------------------------------------------------------------
+
+   container.Clear();
+
+// Amplitude of source
+   double S0 = 0.0;
+   container.Insert(S0);
+
+   simulation->AddSource(SourceConstant(), container);
 
 //--------------------------------------------------------------------------------------------------
 // Distribution 1 (time)
