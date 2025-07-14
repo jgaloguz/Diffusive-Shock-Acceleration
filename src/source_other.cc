@@ -118,7 +118,7 @@ void SourceSphericalShockInjection::EvaluateSource(void)
    double r = (_pos - r0).Norm();
    del_mom = _mom.Norm() - p_inj;
    if (del_mom * del_mom_old < 0.0) {
-      if (r_sh <= r && r <= r_sh + w_sh) SourceTerm = rate / _dt;
+      if (r_sh <= r && r <= r_sh + w_sh) SourceTerm = rate / fabs(_dt);
       else SourceTerm = 0.0;
    }
    else SourceTerm = 0.0;
