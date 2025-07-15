@@ -26,7 +26,7 @@ This file is part of the SPECTRUM suite of scientific numerical simulation codes
 namespace Spectrum {
 
 //! Record trajectory flag
-#define RECORD_TRAJECTORY
+// #define RECORD_TRAJECTORY
 
 //! Record |B| extrema flag
 // #define RECORD_BMAG_EXTREMA
@@ -249,6 +249,12 @@ protected:
 
 //! Local momentum for Advance function (transient)
    GeoVector local_mom;
+
+//! Local amplitude for Advance function (transient)
+   double local_amp;
+
+//! Local weight for Advance function (transient)
+   double local_wgt;
 
 //! Spatial data (transient)
    SpatialData _spdata;
@@ -538,6 +544,8 @@ inline void TrajectoryBase::LoadLocal(void)
    _pos = local_pos;
    _mom = local_mom;
    _vel = Vel(_mom, specie);
+   _amp = local_amp;
+   _wgt = local_wgt;
 };
 
 /*!
@@ -550,6 +558,8 @@ inline void TrajectoryBase::StoreLocal(void)
    local_t = _t;
    local_pos = _pos;
    local_mom = _mom;
+   local_amp = _amp;
+   local_wgt = _wgt;
 };
 
 /*!

@@ -382,16 +382,14 @@ bool TrajectoryBase::RKStep(void)
 #if TRAJ_TIME_FLOW == TRAJ_TIME_FLOW_FORWARD
       _pos += dt * RK_Table.v[islope] * slope_pos[islope];
       _mom += dt * RK_Table.v[islope] * slope_mom[islope];
-      _amp += dt * RK_Table.v[islope] * slope_amp[islope] * exp(_wgt);
-      _wgt += dt * RK_Table.v[islope] * slope_wgt[islope];
       if (RK_Table.adaptive) pos_lo += dt * RK_Table.w[islope] * slope_pos[islope];
 #else
       _pos -= dt * RK_Table.v[islope] * slope_pos[islope];
       _mom -= dt * RK_Table.v[islope] * slope_mom[islope];
-      _amp -= dt * RK_Table.v[islope] * slope_amp[islope] * exp(_wgt);
-      _wgt -= dt * RK_Table.v[islope] * slope_wgt[islope];
       if (RK_Table.adaptive) pos_lo -= dt * RK_Table.w[islope] * slope_pos[islope];
 #endif
+      _amp += dt * RK_Table.v[islope] * slope_amp[islope] * exp(_wgt);
+      _wgt += dt * RK_Table.v[islope] * slope_wgt[islope];
 
    };
    _vel = Vel(_mom, specie);

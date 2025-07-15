@@ -272,7 +272,7 @@ int main(int argc, char** argv)
    container.Insert(w_sh);
 
 // Rate at shock
-   container.Insert(Q);
+   container.Insert(1.0);
 
    simulation->AddSource(SourceSphericalShockInjection(), container);
 
