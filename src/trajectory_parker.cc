@@ -226,7 +226,7 @@ void TrajectoryParker::PhysicalStep(void)
 \param[out] slope_pos_istage RK slope for position
 \param[out] slope_mom_istage RK slope for momentum
 */
-void TrajectoryParker::Slopes(GeoVector& slope_pos_istage, GeoVector& slope_mom_istage)
+void TrajectoryParker::Slopes(GeoVector& slope_pos_istage, GeoVector& slope_mom_istage, double& slope_amp_istage, double& slope_wgt_istage)
 {
    DriftCoeff();
    DiffusionCoeff();
@@ -260,7 +260,7 @@ bool TrajectoryParker::Advance(void)
 
 // The commomn fields and "dmax" have been computed at the end of Advance() or in SetStart() before the first step.
 // Compute the slopes. The first two components for momentum are always zero for GC (the perpendicular momentum is determined from conservation of magnetic moment).
-   Slopes(slope_pos[0], slope_mom[0]);
+   Slopes(slope_pos[0], slope_mom[0], slope_amp[0], slope_wgt[0]);
 
    PhysicalStep();
    dt = fmin(dt_physical, dt_adaptive);

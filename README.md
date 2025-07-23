@@ -1,6 +1,6 @@
 # Diffusive Shock Acceleration
 
-This is a specialization of the SPECTRUM software applied to modeling diffusive shock acceleration. Specifically, the codes in this repository simulate the acceleration of test-particles in the presence of a planar or spherical shock for a variety of diffusion profiles using stochastic methods, analyze the results, and generate useful figures for a future scientific publication. In addition, both forward and backward time-flow approaches are used to solve the relevant equations so their results can be compared and their relative advantages or disadvantes explored.
+This is a specialization of the SPECTRUM software applied to modeling diffusive shock acceleration. Specifically, the codes in this repository simulate the acceleration of test-particles in the presence of a planar or spherical shock for a variety of diffusion profiles using stochastic methods, analyze the results, and generate useful figures for a future scientific publication. In addition, both forward and backward time-flow-direction approaches are used to solve the relevant equations so their results can be compared and their relative advantages or disadvantes explored.
 
 ## Using the code
 
@@ -8,9 +8,9 @@ Before first use, the code must be configured with autotools. After cloning this
 ```
 git clone https://github.com/jgaloguz/Diffusive-Shock-Acceleration
 cd Diffusive-Shock-Acceleration
-./configure.sh <mpi-option> <time-flow>
+./configure.sh <mpi-option> <time-flow-direction> <shock-geometry>
 ```
-where `<mpi-option>` is either `openmpi` or `mpich`, whichever is installed in your system, and `<time-flow>` is either `FORWARD` or `BACKWARD`, depending on which algorithm you want to use to solve the relevant transport equations. You may have to change the permissions of `configure.sh` before you can execute it. You will know the configuration stage ran successfully if a `config.h` file was generated in the working directory.
+where `<mpi-option>` is either `openmpi` or `mpich`, whichever is installed in your system, `<time-flow-direction>` is either `FORWARD` or `BACKWARD`, depending on which algorithm you want to use to solve the relevant transport equations, and `<shock-geometry>` is either `planar` or `spherical`, indicating the shock geometry you want to simulate. You may have to change the permissions of `configure.sh` before you can execute it. You will know the configuration stage ran successfully if a `config.h` file was generated in the working directory.
 
 After a successful configuration, to compile and run code, first navigate to either the `runs_planar_shock` subdirectory for simulations using a planar shock
 ```
@@ -99,13 +99,13 @@ The units are mentioned within parentheses.
 All results are stored in the `runs/dsa_results` folder.
 They can be visualized by running a Python script
 ```
-python dsa_plots.py <Nt1> <Nt2> <which-variables> <which-time-flow>
+python dsa_plots.py <Nt1> <Nt2> <which-variables> <which-time-flow-direction>
 ```
-where `<Nt1>` and `<Nt2>` are the lower and upper time indices specifying a subset of the results to be plotted, `<which-variables>` can be `none`, `pos`, `mom`, or `both`, and `<which-time-flow>` is either `forward` or `backward`.
+where `<Nt1>` and `<Nt2>` are the lower and upper time indices specifying a subset of the results to be plotted, `<which-variables>` can be `none`, `pos`, `mom`, or `both`, and `<which-time-flow-direction>` is either `forward` or `backward`.
 In particular, setting `<Nt1> = 0` and `<Nt2> = 5` will plot all the available results for the default time resolution of 5 bins.
 Using `<which-variables> = none` will only plot the analytic results (which are always plotted).
 Using `<which-variables> = pos` will add the number density (spectrum integrated over momentum) vs space plots in the top panel, `<which-variables> = mom` will add the spectrum vs momentum plots at the location indicated by *Parameter 4* in the bottom panel, and `<which-variables> = both` will add both.
-Finally, setting `<which-time-flow> = forward` will plot the results from the forward-in-time runs, while setting `<which-time-flow> = backward` will plot the results from the backward-in-time runs.
+Finally, setting `<which-time-flow-direction> = forward` will plot the results from the forward-in-time runs, while setting `<which-time-flow-direction> = backward` will plot the results from the backward-in-time runs.
 
 ## Important note
 

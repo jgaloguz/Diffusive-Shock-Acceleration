@@ -565,8 +565,6 @@ public:
    CloneFunctionDistribution(DistributionLossCone);
 };
 
-#if TRAJ_TYPE == TRAJ_PARKER
-
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 // DistributionDivergenceFlowPowerLaw class declaration
 //----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -620,8 +618,6 @@ public:
 //! Clone function
    CloneFunctionDistribution(DistributionDivergenceFlowPowerLaw);
 };
-
-#endif
 
 };
 

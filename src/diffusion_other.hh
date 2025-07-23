@@ -14,7 +14,7 @@ This file is part of the SPECTRUM suite of scientific numerical simulation codes
 
 namespace Spectrum {
 
-#if TRAJ_TYPE != TRAJ_PARKER
+#if (TRAJ_TYPE != TRAJ_PARKER) && (TRAJ_TYPE != TRAJ_PARKER_SOURCE)
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 // DiffusionIsotropicConstant class declaration
@@ -62,7 +62,7 @@ public:
 
 #endif
 
-#if TRAJ_TYPE != TRAJ_PARKER
+#if (TRAJ_TYPE != TRAJ_PARKER) && (TRAJ_TYPE != TRAJ_PARKER_SOURCE)
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 // DiffusionQLTConstant class declaration
@@ -122,7 +122,7 @@ public:
 
 #endif
 
-#if TRAJ_TYPE != TRAJ_PARKER
+#if (TRAJ_TYPE != TRAJ_PARKER) && (TRAJ_TYPE != TRAJ_PARKER_SOURCE)
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 // DiffusionWNLTConstant class declaration

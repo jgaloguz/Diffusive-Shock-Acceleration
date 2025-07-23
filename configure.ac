@@ -80,12 +80,13 @@ AC_DEFINE([TRAJ_GUIDING_DIFF], [203], [Guiding center model with perp. diffusion
 AC_DEFINE([TRAJ_GUIDING_DIFF_SCATT], [204], [Guiding center model with perp. diffusion and PA scattering (p_para,-,p_perp)])
 AC_DEFINE([TRAJ_FOCUSED], [205], [Focused transport model (p,mu,-)])
 AC_DEFINE([TRAJ_PARKER], [206], [Isotropic model (p,-,-)])
+AC_DEFINE([TRAJ_PARKER_SOURCE], [207], [Isotropic model with source (p,-,-)])
 
 # Set up the trajectory type
-AC_ARG_WITH([trajectory], [AS_HELP_STRING([--with-trajectory=TRAJECTORY], [use TRAJECTORY=FIELDLINE|LORENTZ|GUIDING|GUIDING_SCATT|GUIDING_DIFF|GUIDING_DIFF_SCATT|FOCUSED|PARKER])], [], [])
+AC_ARG_WITH([trajectory], [AS_HELP_STRING([--with-trajectory=TRAJECTORY], [use TRAJECTORY=FIELDLINE|LORENTZ|GUIDING|GUIDING_SCATT|GUIDING_DIFF|GUIDING_DIFF_SCATT|FOCUSED|PARKER|PARKER_SOURCE])], [], [])
 AS_IF([test "x$with_trajectory" == "x"],
       [AC_MSG_ERROR([A value of TRAJECTORY is required])],
-      [test $with_trajectory == "FIELDLINE" || test $with_trajectory == "LORENTZ" || test $with_trajectory == "GUIDING" || test $with_trajectory == "GUIDING_SCATT" || test $with_trajectory == "GUIDING_DIFF" || test $with_trajectory == "GUIDING_DIFF_SCATT" || test $with_trajectory == "FOCUSED" || test $with_trajectory == "PARKER"],
+      [test $with_trajectory == "FIELDLINE" || test $with_trajectory == "LORENTZ" || test $with_trajectory == "GUIDING" || test $with_trajectory == "GUIDING_SCATT" || test $with_trajectory == "GUIDING_DIFF" || test $with_trajectory == "GUIDING_DIFF_SCATT" || test $with_trajectory == "FOCUSED" || test $with_trajectory == "PARKER" || test $with_trajectory == "PARKER_SOURCE"],
       [AC_DEFINE_UNQUOTED([TRAJ_TYPE], [TRAJ_$with_trajectory], [Choice of the trajectory integrator])],
       [AC_MSG_ERROR([Invalid TRAJECTORY value])])
 AC_MSG_NOTICE([Using "$with_trajectory" as the trajectory model])
