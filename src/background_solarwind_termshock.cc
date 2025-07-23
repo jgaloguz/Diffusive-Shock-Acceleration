@@ -8,7 +8,6 @@ This file is part of the SPECTRUM suite of scientific numerical simulation codes
 */
 
 #include "background_solarwind_termshock.hh"
-#include <iostream>
 
 namespace Spectrum {
 
@@ -188,17 +187,18 @@ void BackgroundSolarWindTermShock::EvaluateBackgroundDerivatives(void)
    GeoVector posprime, rhat;
    GeoMatrix rr;
 
+   posprime = _pos - r0;
+   r = posprime.Norm();
+   rhat = posprime / r; 
+   rr.Dyadic(rhat);
+
    if (BITS_RAISED(_spdata._mask, BACKGROUND_gradU)) {
 // Expression valid only for radial flow
-      posprime = _pos - r0;
-      r = posprime.Norm();
-      rhat = posprime / r; 
-      rr.Dyadic(rhat);
       _spdata.gradUvec = dUrdr(r) * rr + (_spdata.Uvec.Norm() / r) * (gm_unit - rr);
    };
    if (BITS_RAISED(_spdata._mask, BACKGROUND_gradB)) {
-//TODO: complete
-      _spdata.gradBvec = gm_zeros;
+// Expression valid only for radial field ~ 1/r^2
+      _spdata.gradBvec = (_spdata.Bmag / r) * (gm_unit - 3.0 * rr);
    };
    if (BITS_RAISED(_spdata._mask, BACKGROUND_gradE)) {
       _spdata.gradEvec = -((_spdata.gradUvec ^ _spdata.Bvec) + (_spdata.Uvec ^ _spdata.gradBvec)) / c_code;
@@ -224,13 +224,6 @@ void BackgroundSolarWindTermShock::EvaluateDmax(void)
 // Reduce "dmax" around the shock. This implemenation assumes that "dmax" = "dmax0" near "r_TS" by default.
    double dr_shock = ((_pos - r0).Norm() - r_TS - 0.5 * w_TS) / w_TS;
    _spdata.dmax = fmin(dmax_fraction * w_TS * fmax(1.0, fabs(dr_shock)), _spdata.dmax);
-
-   // double r = (_pos - r0).Norm();
-   // if (r_TS - dmax0 < r && r < r_TS + w_TS + dmax0) {
-   //    if (r < r_TS) _spdata.dmax += (dmax_TS - dmax0) * (r - r_TS + dmax0) / dmax0;
-   //    else if (r > r_TS + w_TS) _spdata.dmax -= (dmax_TS - dmax0) * (r - r_TS - w_TS - dmax0) / dmax0;
-   //    else _spdata.dmax = dmax_TS;
-   // };
 };
 
 };

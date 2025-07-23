@@ -141,8 +141,6 @@ int main(int argc, char** argv)
 
 // Actions vector
    std::vector<int> actions_time;
-   // actions_time.push_back(-1);
-   // actions_time.push_back(-1);
    actions_time.push_back(1);
    container.Insert(actions_time);
 
@@ -151,39 +149,6 @@ int main(int argc, char** argv)
 
    simulation->AddBoundary(BoundaryTimeExpire(), container);
 
-//--------------------------------------------------------------------------------------------------
-// Injection boundary
-//--------------------------------------------------------------------------------------------------
-/*
-   container.Clear();
-
-// Maximum crossings
-   int max_crossings_mom = 1;
-   container.Insert(max_crossings_mom);
-
-// Actions vector
-   std::vector<int> actions_mom;
-   actions_mom.push_back(0);
-   actions_mom.push_back(0);
-   actions_mom.push_back(0);
-   container.Insert(actions_mom);
-
-// Injection momentum
-   container.Insert(p_inj);
-
-// Center of spherical shells
-   container.Insert(gv_zeros);
-
-// Radius of inner shell
-   double inner_shell_radius = R_sh;
-   container.Insert(inner_shell_radius);
-
-// Radius of outer shell
-   double outer_shell_radius = R_sh + w_sh;
-   container.Insert(outer_shell_radius);
-
-   simulation->AddBoundary(BoundaryMomentumInjectRestrictShell(), container);
-*/
 //--------------------------------------------------------------------------------------------------
 // Spatial inner boundary
 //--------------------------------------------------------------------------------------------------
@@ -196,8 +161,6 @@ int main(int argc, char** argv)
 
 // Action vector
    std::vector<int> actions_Sun;
-   // actions_Sun.push_back(1);
-   // actions_Sun.push_back(1);
    actions_Sun.push_back(1);
    container.Insert(actions_Sun);
 
@@ -277,115 +240,7 @@ int main(int argc, char** argv)
    simulation->AddSource(SourceSphericalShockInjection(), container);
 
 //--------------------------------------------------------------------------------------------------
-// Distribution 1 (time)
-//--------------------------------------------------------------------------------------------------
-/*
-   container.Clear();
-
-// Number of bins
-   MultiIndex n_bins1(100, 0, 0);
-   container.Insert(n_bins1);
-   
-// Smallest value
-   GeoVector minval1(0.0, 0.0, 0.0);
-   container.Insert(minval1);
-
-// Largest value
-   GeoVector maxval1(tf, 0.0, 0.0);
-   container.Insert(maxval1);
-
-// Linear or logarithmic bins
-   MultiIndex log_bins1(0, 0, 0);
-   container.Insert(log_bins1);
-
-// Add outlying events to the end bins
-   MultiIndex bin_outside1(0, 0, 0);
-   container.Insert(bin_outside1);
-
-// Physical units of the distro
-   double unit_distro1 = 1.0;
-   container.Insert(unit_distro1);
-
-// Physical units of the bin value
-   GeoVector unit_val1 = {unit_time_fluid, 1.0, 1.0};
-   container.Insert(unit_val1);
-
-// Don't keep records
-   bool keep_records1 = false;
-   container.Insert(keep_records1);
-
-// Value for the "hot" condition
-   double val_hot1 = 1.0;
-   container.Insert(val_hot1);
-
-// Value for the "cold" condition
-   double val_cold1 = 0.0;
-   container.Insert(val_cold1);
-
-// Coordinates to use (initial or final)
-   int val_time1 = 1;
-   container.Insert(val_time1);
-
-   simulation->AddDistribution(DistributionTimeUniform(), container);
-*/
-//--------------------------------------------------------------------------------------------------
-// Distribution 2 (position)
-//--------------------------------------------------------------------------------------------------
-/*
-   container.Clear();
-
-// Number of bins
-   MultiIndex n_bins2(Nr, 0, 0);
-   container.Insert(n_bins2);
-
-// Smallest value
-   GeoVector minval2(R_sh, 0.0, 0.0);
-   container.Insert(minval2);
-
-// Largest value
-   GeoVector maxval2(R_sh + w_sh, 0.0, 0.0);
-   container.Insert(maxval2);
-
-// Linear or logarithmic bins
-   MultiIndex log_bins2(0, 0, 0);
-   container.Insert(log_bins2);
-
-// Add outlying events to the end bins
-   MultiIndex bin_outside2(0, 0, 0);
-   container.Insert(bin_outside2);
-
-// Physical units of the distro
-   double unit_distro2 = 1.0;
-   container.Insert(unit_distro2);
-
-// Physical units of the bin values
-   GeoVector unit_val2 = {unit_length_fluid, 1.0, 1.0};
-   container.Insert(unit_val2);
-
-// Don't keep records
-   bool keep_records2 = false;
-   container.Insert(keep_records2);
-
-// Constant value for the "hot" condition
-   double val_hot2 = 1.0;
-   container.Insert(val_hot2);
-
-// Constant value for the "cold" condition
-   double val_cold2 = 0.0;
-   container.Insert(val_cold2);
-
-// Which coordinates to use for value: 0 initial, 1 final
-   int val_time2 = 1;
-   container.Insert(val_time2);
-
-// Which coordinate representation to use for value: 0 "native coordinates", 1 locally spherical with B || z
-   int val_coord2 = 0;
-   container.Insert(val_coord2);
-
-   simulation->AddDistribution(DistributionPositionUniform(), container);
-*/
-//--------------------------------------------------------------------------------------------------
-// Distribution 3 (momentum)
+// Distribution 1 (momentum)
 //--------------------------------------------------------------------------------------------------
 
    container.Clear();
@@ -455,9 +310,7 @@ int main(int argc, char** argv)
    simulation->DistroFileName(simulation_files_prefix);
    simulation->SetTasks(n_traj, batch_size);
    simulation->MainLoop();
-   // simulation->PrintDistro1D(0, 0, simulation_files_prefix + "time_" + std::to_string(t_idx) + ".dat", false);
-   // simulation->PrintDistro1D(1, 0, simulation_files_prefix + "pos_" + std::to_string(t_idx) + ".dat", false);
-   simulation->PrintDistro1D(0, 0, simulation_files_prefix + "mom_" + std::to_string(t_idx) + ".dat", false);
+  simulation->PrintDistro1D(0, 0, simulation_files_prefix + "mom_" + std::to_string(t_idx) + ".dat", false);
 
    return 0;
 };
