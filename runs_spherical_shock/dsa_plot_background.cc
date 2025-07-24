@@ -12,7 +12,9 @@ using namespace Spectrum;
 int main(int argc, char** argv)
 {
    int i;
-   double Kpara, dKpara_dx;
+   double Kpara, Kperp;
+   GeoVector divK, gradKpara, gradKperp;
+   GeoMatrix bhatbhat;
    std::ofstream plot_file;
    DataContainer container;
    GeoVector pos, mom;
@@ -22,7 +24,7 @@ int main(int argc, char** argv)
 
    ReadParams();
    DefineArrays();
-   spdata._mask = BACKGROUND_U | BACKGROUND_B | BACKGROUND_gradU;
+   spdata._mask = BACKGROUND_U | BACKGROUND_B | BACKGROUND_gradU | BACKGROUND_gradB;
 
 //--------------------------------------------------------------------------------------------------
 // Background
@@ -127,15 +129,29 @@ int main(int argc, char** argv)
    plot_file.open("dsa_results/solarwind.dat");
    for (i = 0; i < Nr; i++) {
       pos[0] = r_arr[i];
+
+// Computation of base fields (U, B) and gradients (divU, divB)
       background.GetFields(0.0, pos, mom, spdata);
+
+// Divergence of K analytic computation
+      bhatbhat.Dyadic(spdata.bhat);
       Kpara = diffusion.GetComponent(1, 0.0, pos, mom, spdata);
-      dKpara_dx = diffusion.GetDirectionalDerivative(0);
+      gradKpara[0] = diffusion.GetDirectionalDerivative(0);
+      gradKpara[1] = diffusion.GetDirectionalDerivative(1);
+      gradKpara[2] = diffusion.GetDirectionalDerivative(2);
+      Kperp = diffusion.GetComponent(0, 0.0, pos, mom, spdata);
+      gradKperp[0] = diffusion.GetDirectionalDerivative(0);
+      gradKperp[1] = diffusion.GetDirectionalDerivative(1);
+      gradKperp[2] = diffusion.GetDirectionalDerivative(2);
+      divK = gradKperp + bhatbhat * (gradKpara - gradKperp)
+           + (Kpara - Kperp) * ( spdata.divbhat() * spdata.bhat
+                               + spdata.bhat * spdata.gradbhat());
       plot_file << std::setw(18) << pos[0]
                 << std::setw(18) << spdata.dmax
                 << std::setw(18) << spdata.Uvec.Norm() * unit_velocity_fluid
                 << std::setw(18) << spdata.divU() * unit_velocity_fluid / unit_length_fluid
                 << std::setw(18) << Kpara * unit_diffusion_fluid
-                << std::setw(18) << dKpara_dx * unit_diffusion_fluid / unit_length_fluid
+                << std::setw(18) << divK.Norm() * unit_diffusion_fluid / unit_length_fluid
                 << std::endl;
    };
    plot_file.close();
