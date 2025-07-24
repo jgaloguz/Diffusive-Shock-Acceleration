@@ -184,21 +184,31 @@ void BackgroundSolarWindTermShock::EvaluateBackgroundDerivatives(void)
 {
 #if SOLARWIND_DERIVATIVE_METHOD == 0
    double r;
-   GeoVector posprime, rhat;
-   GeoMatrix rr;
+   GeoMatrix CartesianToSpherical;
 
-   posprime = _pos - r0;
-   r = posprime.Norm();
-   rhat = posprime / r; 
-   rr.Dyadic(rhat);
+   r = (_pos - r0).Norm();
+   CartesianToSpherical.Transpose(SphericalToCartesian);
 
    if (BITS_RAISED(_spdata._mask, BACKGROUND_gradU)) {
 // Expression valid only for radial flow
-      _spdata.gradUvec = dUrdr(r) * rr + (_spdata.Uvec.Norm() / r) * (gm_unit - rr);
+      _spdata.gradUvec = gm_zeros;
+      _spdata.gradUvec[0][0] = dUrdr(r);
+      _spdata.gradUvec[1][1] = _spdata.Uvec.Norm() / r;
+      _spdata.gradUvec[2][2] = _spdata.Uvec.Norm() / r;
+// Convert to Cartesian
+      _spdata.gradUvec = SphericalToCartesian * _spdata.gradUvec * CartesianToSpherical;
    };
    if (BITS_RAISED(_spdata._mask, BACKGROUND_gradB)) {
-// Expression valid only for radial field ~ 1/r^2
-      _spdata.gradBvec = (_spdata.Bmag / r) * (gm_unit - 3.0 * rr);
+// Expressions valid only for radial field ~ 1/r^2
+      _spdata.gradBvec = gm_zeros;
+      _spdata.gradBvec[0][0] = -2.0 * _spdata.Bvec.Norm() / r;
+      _spdata.gradBvec[1][1] = _spdata.Bvec.Norm() / r;
+      _spdata.gradBvec[2][2] = _spdata.Bvec.Norm() / r;
+      _spdata.gradBmag = gv_zeros;
+      _spdata.gradBmag[0] = -2.0 * _spdata.Bvec.Norm() / r;
+// Convert to Cartesian
+      _spdata.gradBvec = SphericalToCartesian * _spdata.gradBvec * CartesianToSpherical;
+      _spdata.gradBmag = SphericalToCartesian * _spdata.gradBmag;
    };
    if (BITS_RAISED(_spdata._mask, BACKGROUND_gradE)) {
       _spdata.gradEvec = -((_spdata.gradUvec ^ _spdata.Bvec) + (_spdata.Uvec ^ _spdata.gradBvec)) / c_code;

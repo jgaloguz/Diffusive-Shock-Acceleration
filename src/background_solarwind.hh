@@ -114,6 +114,9 @@ protected:
 //! Position relative to origin (transient)
    GeoVector posprime;
 
+//! Transformation matrix from spherical to Cartesian (transient)
+   GeoMatrix SphericalToCartesian;
+
 #if SOLARWIND_SPEED_LATITUDE_PROFILE == 1
 //! Latitude separating transition region from slow wind (persistent)
    double fsl_pls;
