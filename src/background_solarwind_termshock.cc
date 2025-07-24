@@ -197,6 +197,7 @@ void BackgroundSolarWindTermShock::EvaluateBackgroundDerivatives(void)
       _spdata.gradUvec[2][2] = _spdata.Uvec.Norm() / r;
 // Convert to Cartesian
       _spdata.gradUvec = SphericalToCartesian * _spdata.gradUvec * CartesianToSpherical;
+      _spdata.gradUvec.ChangeFromBasis(eprime);
    };
    if (BITS_RAISED(_spdata._mask, BACKGROUND_gradB)) {
 // Expressions valid only for radial field ~ 1/r^2
@@ -208,7 +209,9 @@ void BackgroundSolarWindTermShock::EvaluateBackgroundDerivatives(void)
       _spdata.gradBmag[0] = -2.0 * _spdata.Bvec.Norm() / r;
 // Convert to Cartesian
       _spdata.gradBvec = SphericalToCartesian * _spdata.gradBvec * CartesianToSpherical;
+      _spdata.gradBvec.ChangeFromBasis(eprime);
       _spdata.gradBmag = SphericalToCartesian * _spdata.gradBmag;
+      _spdata.gradBmag.ChangeFromBasis(eprime);
    };
    if (BITS_RAISED(_spdata._mask, BACKGROUND_gradE)) {
       _spdata.gradEvec = -((_spdata.gradUvec ^ _spdata.Bvec) + (_spdata.Uvec ^ _spdata.gradBvec)) / c_code;
