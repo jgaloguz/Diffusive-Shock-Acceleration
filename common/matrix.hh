@@ -101,11 +101,17 @@ struct GeoMatrix {
 //! Generate a basis with the z-axis along the given direction
    SPECTRUM_DEVICE_FUNC void AxisymmetricBasis(const GeoVector& ez);
 
-//! Convert components from the standard basis to a different basis
+//! Convert rows from the standard basis to a different basis
    SPECTRUM_DEVICE_FUNC void ChangeToBasis(const GeoMatrix& basis);
 
-//! Convert components to the standard basis from a different basis
+//! Convert components from the standard basis to a different basis
+   SPECTRUM_DEVICE_FUNC void ChangeToBasis(const GeoVector* basis);
+
+//! Convert rows to the standard basis from a different basis
    SPECTRUM_DEVICE_FUNC void ChangeFromBasis(const GeoMatrix& basis);
+
+//! Convert components to the standard basis from a different basis
+   SPECTRUM_DEVICE_FUNC void ChangeFromBasis(const GeoVector* basis);
 
 //! Compute a minor
    SPECTRUM_DEVICE_FUNC double Minor(int i, int j) const;
