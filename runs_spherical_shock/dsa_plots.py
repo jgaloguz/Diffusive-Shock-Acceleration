@@ -45,7 +45,7 @@ if which_variable == "mom" or which_variable == "both":
                  color=colors[t], linestyle="", marker="s",
                  label="t = {:.2e} day(s)".format(t_arr[t]))
 ax2.set_xlabel('$E$ (MeV)', fontsize=20)
-ax2.set_ylabel('$fp^2$', fontsize=20)
+ax2.set_ylabel('$4\\pi fp^2$', fontsize=20)
 ax2.tick_params(axis='x', labelsize=20)
 ax2.tick_params(axis='y', labelsize=20)
 ax2.legend(fontsize=20)

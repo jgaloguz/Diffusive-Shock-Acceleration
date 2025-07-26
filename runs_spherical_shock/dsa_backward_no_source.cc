@@ -198,7 +198,7 @@ int main(int argc, char** argv)
    std::vector<int> actions_Sun;
    actions_Sun.push_back(-1);
    actions_Sun.push_back(-1);
-   actions_Sun.push_back(-1);
+   actions_Sun.push_back(1);
    container.Insert(actions_Sun);
 
 // Origin
