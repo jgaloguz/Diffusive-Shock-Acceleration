@@ -3,7 +3,9 @@
 AM_CXXFLAGS = $(MPI_CFLAGS)
 AM_LDFLAGS = $(MPI_LIBS)
 
-bin_PROGRAMS = dsa_forward dsa_backward dsa_forward_postprocess dsa_backward_postprocess dsa_analytic
+bin_PROGRAMS = dsa_forward dsa_backward \
+               dsa_forward_postprocess dsa_backward_postprocess \
+               dsa_analytic
 
 SPBL_COMMON_DIR = ../common
 SPBL_SOURCE_DIR = ../src

@@ -50,7 +50,7 @@ double z_arr[Nz];             // Spatial bin centers
 double z_spectrum;            // Spatial location where to plot spectrum
 double t_arr[Nt];             // Time bin centers
 
-const int N_params = 16;       // Number of parameters to read from file
+const int N_params = 17;      // Number of parameters to read from file
 double params[N_params];      // Array of parameters
 std::ifstream params_file;    // Parameter file
 
@@ -76,7 +76,7 @@ void ReadParams(void)
    beta = 1.5 * (s + 1.0) / (s - 1.0);
    tau = 4.0 * kappa_up / Sqr(U_up);
    Q = params[9];
-   amp = 3.0 * Q / (2.0 * M_4PI * DeltaU * Cube(p0));
+   amp = 3.0 * Q / (M_8PI * DeltaU * Cube(p0));
    pf = Mom(params[11] * one_MeV, specie);
    logp0 = log10(p0);
    logpf = log10(pf);
