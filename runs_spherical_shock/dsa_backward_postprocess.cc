@@ -15,10 +15,10 @@ int main(int argc, char** argv)
    std::string line;
    int sum_c[Np];
    double coord[Np], distro[Np], sum_w[Np];
-   double factor = (sqrt(lambda) / s) * (U_up / DeltaU);
    double S;
    ReadParams();
    DefineArrays();
+   double factor = (sqrt(lambda) / s) * (U_up / DeltaU);
 
 // Spectrum vs momentum
    infilename = "dsa_results/dsa_backward_mom_" + std::to_string(i) + ".dat";
