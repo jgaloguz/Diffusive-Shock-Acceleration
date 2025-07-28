@@ -18,6 +18,7 @@ int main(int argc, char** argv)
    double S;
    ReadParams();
    DefineArrays();
+   double factor = (sqrt(lambda) / s) * (U_up / DeltaU);
 
 // Spectrum vs momentum
    infilename = "dsa_results/dsa_backward_mom_" + std::to_string(i) + ".dat";
@@ -48,7 +49,7 @@ int main(int argc, char** argv)
    output_sda_file << std::setprecision(8);
    for(j = 0; j < Np; j++) {
       output_sda_file << std::setw(20) << EnrKin(coord[j], specie) / one_MeV
-                      << std::setw(20) << amp * (sqrt(lambda) / s) * M_8PI * distro[j] * Sqr(coord[j])
+                      << std::setw(20) << amp * factor * M_8PI * distro[j] * Sqr(coord[j])
                       << std::endl;
    };
 
@@ -58,7 +59,7 @@ int main(int argc, char** argv)
 // Integrate spectrum to obtain number density
    S = 0.0;
    for(j = 0; j < Np; j++) S += distro[j] * Sqr(coord[j]) * dp_arr[j];
-   std::cout << S * amp * (sqrt(lambda) / s) * M_8PI << std::endl;
+   std::cout << S * amp * factor * M_8PI << std::endl;
 
    return 0;
 };

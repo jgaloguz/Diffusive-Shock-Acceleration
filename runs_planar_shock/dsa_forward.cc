@@ -108,9 +108,8 @@ int main(int argc, char** argv)
 
    container.Clear();
 
-// Lower bound for position
-   GeoVector init_pos(0.0, 0.0, 0.0);
-   container.Insert(init_pos);
+// Injection position
+   container.Insert(gv_zeros);
 
    simulation->AddInitial(InitialSpaceFixed(), container);
 
