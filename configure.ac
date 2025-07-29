@@ -168,7 +168,7 @@ AS_IF([test "x$enable_cuda" == "xyes"],
       [AC_MSG_NOTICE([CUDA is disabled])])
 
 # Files to generate
-AC_CONFIG_FILES([Makefile runs_planar_shock/Makefile runs_spherical_shock/Makefile])
+AC_CONFIG_FILES([Makefile runs_planar_shock/Makefile runs_spherical_shock/Makefile runs_planar_shock_acc/Makefile])
 
 AC_OUTPUT
 

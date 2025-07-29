@@ -151,6 +151,8 @@ dsa_backward_LDADD = $(MPI_LIBS) $(GSL_LIBS)
 dsa_backward_no_source_SOURCES = dsa_backward_no_source.cc dsa_common.hh \
    $(SPBL_SOURCE_DIR)/simulation.cc \
    $(SPBL_SOURCE_DIR)/simulation.hh \
+   $(SPBL_SOURCE_DIR)/trajectory_parker_source.cc \
+   $(SPBL_SOURCE_DIR)/trajectory_parker_source.hh \
    $(SPBL_SOURCE_DIR)/trajectory_parker.cc \
    $(SPBL_SOURCE_DIR)/trajectory_parker.hh \
    $(SPBL_SOURCE_DIR)/trajectory_base.cc \
@@ -181,6 +183,8 @@ dsa_backward_no_source_SOURCES = dsa_backward_no_source.cc dsa_common.hh \
    $(SPBL_SOURCE_DIR)/diffusion_other.hh \
    $(SPBL_SOURCE_DIR)/diffusion_base.cc \
    $(SPBL_SOURCE_DIR)/diffusion_base.hh \
+   $(SPBL_SOURCE_DIR)/source_other.cc \
+   $(SPBL_SOURCE_DIR)/source_other.hh \
    $(SPBL_SOURCE_DIR)/source_base.cc \
    $(SPBL_SOURCE_DIR)/source_base.hh \
    $(SPBL_SOURCE_DIR)/distribution_other.cc \

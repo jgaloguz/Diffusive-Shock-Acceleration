@@ -10,7 +10,14 @@ git clone https://github.com/jgaloguz/Diffusive-Shock-Acceleration
 cd Diffusive-Shock-Acceleration
 ./configure.sh <mpi-option> <time-flow-direction> <shock-geometry>
 ```
-where `<mpi-option>` is either `openmpi` or `mpich`, whichever is installed in your system, `<time-flow-direction>` is either `FORWARD` or `BACKWARD`, depending on which algorithm you want to use to solve the relevant transport equations, and `<shock-geometry>` is either `planar` or `spherical`, indicating the shock geometry you want to simulate. You may have to change the permissions of `configure.sh` before you can execute it. You will know the configuration stage ran successfully if a `config.h` file was generated in the working directory.
+where `<mpi-option>` is either `openmpi` or `mpich`, whichever is installed in your system, `<time-flow-direction>` is either `forward` or `backward`, depending on which algorithm you want to use to solve the relevant transport equations, and `<shock-geometry>` is either `planar` or `spherical`, indicating the shock geometry you want to simulate. You may have to change the permissions of `configure.sh` before you can execute it. You will know the configuration stage ran successfully if a `config.h` file was generated in the working directory.
+A successful configuration will output the following message:
+```
+****************************************
+Code configured for:
+    <time-flow-direction> <shock-geometry> shock simulations.
+****************************************
+```
 
 After a successful configuration, to compile and run code, first navigate to either the `runs_planar_shock` subdirectory for simulations using a planar shock
 ```
@@ -33,10 +40,11 @@ To obtain analytic results, compile and run the code using
 make dsa_analytic
 ./dsa_analytic
 ```
+Note that some important information regarding the shock or simulation parameters is printed to the terminal.
 
 **Forward-in-time Simulations**
 
-For forward-in-time simulations, configure the code using the `FORWARD` option.
+For forward-in-time simulations, configure the code using the `forward` option.
 Compile and run the code using
 ```
 make dsa_forward
@@ -52,7 +60,7 @@ This command will post-process the results for all time, spatial, and momentum b
 
 **Backward-in-time Simulations**
 
-Similarly, for backward-in-time simulations, configure the code using the `BACKWARD` option.
+Similarly, for backward-in-time simulations, configure the code using the `backward` option.
 Compile and run the code using
 ```
 make dsa_backward
@@ -66,6 +74,10 @@ make dsa_backward_postprocess
 ```
 This command will only post-process the results for the time corresponding to `<time-index>` and the spatial location given by input *Parameter 4* (see list of parameters below).
 This is because each backward-in-time run will only compute the spectrum at a single time and location.
+
+A special case is the code titled `dsa_backward_no_source` inside the `runs_spherical_shock` folder.
+It is a test case to demonstrate the importance of assigning the appropriate weight to pseudo-trajectories in the backward-in-time method.
+It is run with the same arguments as the regular `dsa_backward` code, and, after the same post-processing, it will output a similar solution with the correct slopes but incorrect normalization.
 
 **Parameters File**
 The `params.dat` file contains the parameters that control the simulation execution and output.

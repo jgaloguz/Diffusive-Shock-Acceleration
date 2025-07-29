@@ -25,9 +25,9 @@ double Q;                     // Injection rate
 double amp;                   // Scaling factor for analytic solution
 
 // Numerical simulation parameters
-double dmax;                     // Maximum trajectory displacement away from shock
-double w_sh;                     // Shock width
-double dmax_fraction;            // Ratio of shock width to impose as maximum trajectory displacement near shock
+double dmax;                  // Maximum trajectory displacement away from shock
+double w_sh;                  // Shock width
+double dmax_fraction;         // Ratio of shock width to impose as maximum trajectory displacement near shock
 const int Np = 100;           // Number of momentum bins
 double pf;                    // Upper limit in momentum range
 double logp0;                 // Logarithm of p0
