@@ -23,42 +23,56 @@ int main(int argc, char** argv)
    infilename = "dsa_results/dsa_backward_mom_" + std::to_string(i) + ".dat";
    outfilename = "dsa_results/dsa_backward_mom_" + std::to_string(i) + "_pp.dat";
 
-   // Open input analytic distro file
-   std::ifstream input_sda_file(infilename);
+// Open input analytic distro file
+   std::ifstream input_dsa_file(infilename);
 
-   // Read first two lines of distro file
-   std::getline(input_sda_file, line);
-   std::getline(input_sda_file, line);
+// Read first two lines of distro file
+   std::getline(input_dsa_file, line);
+   std::getline(input_dsa_file, line);
 
-   // Read data
+// Read data
    for(j = 0; j < Np; j++) {
-      input_sda_file >> coord[j];
-      input_sda_file >> distro[j];
-      input_sda_file >> sum_w[j];
-      input_sda_file >> sum_c[j];
+      input_dsa_file >> coord[j];
+      input_dsa_file >> distro[j];
+      input_dsa_file >> sum_w[j];
+      input_dsa_file >> sum_c[j];
    };
 
-   // Close input cartesian distro file
-   input_sda_file.close();
+// Close input cartesian distro file
+   input_dsa_file.close();
 
-   // Open output distro file
-   std::ofstream output_sda_file(outfilename);
+// Open output distro file
+   std::ofstream output_dsa_file(outfilename);
 
-   // Output data
-   output_sda_file << std::setprecision(8);
+// Output data
+   output_dsa_file << std::setprecision(8);
    for(j = 0; j < Np; j++) {
-      output_sda_file << std::setw(20) << EnrKin(coord[j], specie) / one_MeV
+      output_dsa_file << std::setw(20) << EnrKin(coord[j], specie) / one_MeV
                       << std::setw(20) << amp * M_8PI * distro[j] * Sqr(coord[j])
                       << std::endl;
    };
 
-   // Close output distro file
-   output_sda_file.close();
+// Close output distro file
+   output_dsa_file.close();
 
-   // Integrate spectrum to obtain number density
+// Number density vs position
+   outfilename = "dsa_results/dsa_backward_pos_" + std::to_string(i) + "_pp.dat";
+
+// Integrate spectrum to obtain number density
    S = 0.0;
    for(j = 0; j < Np; j++) S += distro[j] * Sqr(coord[j]) * dp_arr[j];
-   std::cout << S * amp * M_8PI << std::endl;
 
+// Open output number density file
+   output_dsa_file.open(outfilename);
+
+   output_dsa_file << std::setprecision(8);
+   output_dsa_file << std::setw(20) << z_spectrum
+                   << std::setw(20) << amp * M_8PI * S 
+                   << std::endl;
+
+// Close output number density file
+   output_dsa_file.close();
+
+   std::cout << "Post-processed distribution files outputed." << std::endl;
    return 0;
 };

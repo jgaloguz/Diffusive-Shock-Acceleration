@@ -246,13 +246,13 @@ int main(int argc, char** argv)
       std::cerr << std::endl << "BASELINE" << std::endl;
 #endif
 #endif
-      std::ofstream output_sda_file(outfilename);
+      std::ofstream output_dsa_file(outfilename);
       for(k = 0; k < Np; k++) {
-         output_sda_file << std::setw(20) << EnrKin(p_arr[k], specie) / one_MeV
+         output_dsa_file << std::setw(20) << EnrKin(p_arr[k], specie) / one_MeV
                          << std::setw(20) << distro_out[k] / (dz * dp_arr[k]) * Q * tf / (n_traj * comm_size)
                          << std::endl;
       };
-      output_sda_file.close();
+      output_dsa_file.close();
    };
 
 // Finalize the MPI environment.

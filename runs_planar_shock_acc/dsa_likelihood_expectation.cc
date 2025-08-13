@@ -220,14 +220,14 @@ int main(int argc, char** argv)
    std::cout << "\rt = " << t_arr[time_index] << std::endl;
 
 // Output to data
-   std::ofstream output_sda_file(outfilename);
+   std::ofstream output_dsa_file(outfilename);
    for (i = 1; i < Nz+1; i++) {
       for (j = 1; j < Np+1; j++) {
-         output_sda_file << std::setw(20) << h_new[i][j];
+         output_dsa_file << std::setw(20) << h_new[i][j];
       };
-      output_sda_file << std::endl;
+      output_dsa_file << std::endl;
    };
-   output_sda_file.close();
+   output_dsa_file.close();
 
 // Clean-up
    Delete2D(h_new);
