@@ -2,7 +2,7 @@
 #include "src/distribution_other.hh"
 #include "src/background_solarwind_termshock.hh"
 #include "src/diffusion_other.hh"
-#include "src/source_base.hh"
+#include "src/source_other.hh"
 #include "src/boundary_time.hh"
 #include "src/boundary_space.hh"
 #include "src/boundary_momentum.hh"
@@ -196,7 +196,7 @@ int main(int argc, char** argv)
 
 // Action vector
    std::vector<int> actions_Sun;
-   actions_Sun.push_back(-1);
+   actions_Sun.push_back(1);
    actions_Sun.push_back(-1);
    actions_Sun.push_back(1);
    container.Insert(actions_Sun);
@@ -252,6 +252,18 @@ int main(int argc, char** argv)
    container.Insert(s);
 
    simulation->AddDiffusion(DiffusionKineticEnergyRadialDistancePowerLaw(), container);
+
+//--------------------------------------------------------------------------------------------------
+// Source term
+//--------------------------------------------------------------------------------------------------
+
+   container.Clear();
+
+// Amplitude of source
+   double S0 = 0.0;
+   container.Insert(S0);
+
+   simulation->AddSource(SourceConstant(), container);
 
 //--------------------------------------------------------------------------------------------------
 // Distribution 1 (time)
@@ -438,5 +450,3 @@ int main(int argc, char** argv)
 
    return 0;
 };
-
-

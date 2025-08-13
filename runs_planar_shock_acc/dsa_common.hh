@@ -5,6 +5,14 @@
 
 using namespace Spectrum;
 
+#define ENABLE_SPLITTING                              // Flag to enable particle splitting
+#define ENABLE_IMPORTANCE                             // Flag to enable importance sampling
+#define n_traj 1000                                   // Number of trajectories per process
+#define n_chld 2                                      // Number of child particles per split
+#define n_thrs 10                                     // Number of momentum thresholds to split
+#define max_splt 100000                               // Maximum number of splits per trajectory
+#define A0 0.1                                        // Importance sampling constant
+
 // Constants
 const int specie = Specie::proton;
 const double one_MeV = SPC_CONST_CGSM_MEGA_ELECTRON_VOLT / unit_energy_particle;
@@ -28,12 +36,12 @@ double amp;                   // Scaling factor for analytic solution
 double dmax;                  // Maximum trajectory displacement away from shock
 double w_sh;                  // Shock width
 double dmax_fraction;         // Ratio of shock width to impose as maximum trajectory displacement near shock
-const int Np = 100;           // Number of momentum bins
+const int Np = 1000;          // Number of momentum bins
 double pf;                    // Upper limit in momentum range
 double logp0;                 // Logarithm of p0
 double logpf;                 // Logarithm of pf
 double dlogp;                 // Difference between logarithms of p0 and pf
-const int Nz = 100;           // Number of spatial bins
+const int Nz = 1000;          // Number of spatial bins
 double z0;                    // Lower limit of spatial range
 double zf;                    // Upper limit of spatial range
 double dz;                    // Spatial bin size

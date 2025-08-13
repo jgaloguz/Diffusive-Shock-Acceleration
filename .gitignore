@@ -13,3 +13,4 @@ install-sh
 missing
 runs_planar_shock/Makefile.in
 runs_spherical_shock/Makefile.in
+runs_planar_shock_accelerated/Makefile.in
