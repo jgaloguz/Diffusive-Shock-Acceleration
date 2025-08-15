@@ -68,7 +68,7 @@ int main(int argc, char** argv)
 
    output_dsa_file << std::setprecision(8);
    output_dsa_file << std::setw(20) << r_spectrum
-                   << std::setw(20) << amp * M_8PI * S 
+                   << std::setw(20) << amp * factor * M_8PI * S 
                    << std::endl;
 
 // Close output number density file
