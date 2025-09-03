@@ -5,6 +5,7 @@ AM_LDFLAGS = $(MPI_LIBS)
 
 bin_PROGRAMS = dsa_forward dsa_backward dsa_backward_no_source \
                dsa_forward_postprocess dsa_backward_postprocess \
+               dsa_backward_postprocess_no_source \
                dsa_analytic dsa_plot_background
 
 SPBL_COMMON_DIR = ../common
@@ -255,6 +256,26 @@ dsa_backward_postprocess_SOURCES = dsa_backward_postprocess.cc dsa_common.hh \
    $(SPBL_COMMON_DIR)/print_warn.hh
 
 dsa_backward_postprocess_LDADD = $(MPI_LIBS) $(GSL_LIBS)
+
+dsa_backward_postprocess_no_source_SOURCES = dsa_backward_postprocess_no_source.cc dsa_common.hh \
+   $(SPBL_COMMON_DIR)/matrix.cc \
+   $(SPBL_COMMON_DIR)/matrix.hh \
+   $(SPBL_COMMON_DIR)/vectors.cc \
+   $(SPBL_COMMON_DIR)/vectors.hh \
+   $(SPBL_COMMON_DIR)/multi_index.hh \
+   $(SPBL_COMMON_DIR)/simple_array.hh \
+   $(SPBL_COMMON_DIR)/arithmetic.hh \
+   $(SPBL_COMMON_DIR)/params.cc \
+   $(SPBL_COMMON_DIR)/params.hh \
+   $(SPBL_COMMON_DIR)/physics.cc \
+   $(SPBL_COMMON_DIR)/physics.hh \
+   $(SPBL_COMMON_DIR)/data_container.hh \
+   $(SPBL_COMMON_DIR)/data_container.cc \
+   $(SPBL_COMMON_DIR)/definitions.hh \
+   $(SPBL_COMMON_DIR)/print_warn.hh
+
+dsa_backward_postprocess_no_source_LDADD = $(MPI_LIBS) $(GSL_LIBS)
+
 
 dsa_analytic_SOURCES = dsa_analytic.cc dsa_common.hh \
    $(SPBL_COMMON_DIR)/matrix.cc \

@@ -75,9 +75,17 @@ make dsa_backward_postprocess
 This command will only post-process the results for the time corresponding to `<time-index>` and the spatial location given by input *Parameter 4* (see list of parameters below).
 This is because each backward-in-time run will only compute the spectrum at a single time and location.
 
-A special case is the code titled `dsa_backward_no_source` inside the `runs_spherical_shock` folder.
-It is a test case to demonstrate the importance of assigning the appropriate weight to pseudo-trajectories in the backward-in-time method.
-It is run with the same arguments as the regular `dsa_backward` code, and, after the same post-processing, it will output a similar solution with the correct slopes but incorrect normalization.
+In the `runs_spherical_shock` folder, there is an additional simulation code that solves the spherical DSA problem using a boundary condition, rather than a source term.
+To compile and run it, execute the following commands
+```
+make dsa_backward_no_source
+mpirun -np <N> dsa_backward <number-of-trajectories> <batch-size> <time-index>
+```
+and post-process the results with
+```
+make dsa_backward_postprocess_no_source
+./dsa_backward_postprocess <time-index>
+```
 
 **Parameters File**
 The `params.dat` file contains the parameters that control the simulation execution and output.
