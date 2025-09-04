@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/960155157.svg)](https://doi.org/10.5281/zenodo.17049139)
+
 # Diffusive Shock Acceleration
 
 This is a specialization of the SPECTRUM software applied to modeling diffusive shock acceleration. Specifically, the codes in this repository simulate the acceleration of test-particles in the presence of a planar or spherical shock for a variety of diffusion profiles using stochastic methods, analyze the results, and generate useful figures for a future scientific publication. In addition, both forward and backward time-flow-direction approaches are used to solve the relevant equations so their results can be compared and their relative advantages or disadvantes explored.

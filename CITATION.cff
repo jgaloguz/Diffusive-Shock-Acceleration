@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it using this metadata."
-title: "Diffusive Shock Acceleration Simulation Tools: a SPECTRUM fork"
-abstract: "This software is a specialization of the Space Plasma and Energetic Charged particle TRansport on Unstructured Meshes (SPECTRUM) code to Diffusive Shock Acceleration (DSA) on planar and spherical astrophysical shocks."
+title: "Diffusive Shock Acceleration Modeling Tools: a SPECTRUM fork"
+abstract: "This software is a specialization of the Space Plasma and Energetic Charged particle TRansport on Unstructured Meshes (SPECTRUM) code to modeling Diffusive Shock Acceleration (DSA) on planar and spherical astrophysical shocks."
 authors:
   - family-names: Alonso Guzman
     given-names: Juan Gabriel
@@ -17,9 +17,9 @@ license: Apache-2.0
 version: 1.0.0
 date-released: "2025-09-03"
 identifiers:
-  - description: "Archived snapshot of version 1.0.0 of Diffusive Shock Acceleration Simulation Tools: a SPECTRUM fork"
+  - description: "Archived snapshot of version 1.0.0 of Diffusive Shock Acceleration Modeling Tools: a SPECTRUM fork"
     type: doi
-    value: INCOMPLETE
+    value: 10.5281/zenodo.17049140
 keywords:
   - "diffusive shock acceleration"
   - "Monte Carlo method"
