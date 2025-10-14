@@ -10,38 +10,30 @@
 
 using namespace Spectrum;
 
-#define CFL 0.5                                       // CFL factor
-#define eps 1.0e-8                                    // tolerance for Jacobi method
-
-// Function to check the (1-norm) difference between two matrices
-double norm1(double **A, double **B)
-{
-   double D = 0.0;
-   for (int i = 1; i < Nz+1; i++) {
-      for (int j = 1; j < Np+1; j++) {
-         D += fabs(A[i][j] - B[i][j]);
-      };
-   };
-   return D;
-};
-
 int main(int argc, char** argv)
 {
-   int i, j, iter, time_index;
-   double t, dt, dt_dx, dt_dx2, dt_dlnp, IC;
-   double *u, *k, *du_dx, *dk_dx;
-   double **h_new, **h_old, **RHS_old, RHS_new;
-   GeoVector x, p;
+// Initialize the MPI environment
+   MPI_Init(&argc, &argv);
+   int comm_size, comm_rank;
+   MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
+   MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank);
+
+   int i, j, k, counter, n_traj_10;
+   double t, dt, Kpara, lnw, alpha_3;
+   double distro, distro_out;
+   GeoVector x, p, divK;
    SpatialData spdata;
-   std::string outfilename = "dsa_results/likelihood_expectation.dat";
+   std::string outfilename;
 
    DataContainer container;
    BackgroundSmoothShock background;
    DiffusionFlowMomentumPowerLaw diffusion;
+   RNG rng(time(NULL) + comm_rank);
 
    ReadParams();
    DefineArrays();
 
+   alpha_3 = n_thrs * log(n_chld) / log(pf / p0) / 3.0;
    spdata._mask = BACKGROUND_U | BACKGROUND_B | BACKGROUND_gradU | BACKGROUND_gradB;
 
 //--------------------------------------------------------------------------------------------------
@@ -91,7 +83,6 @@ int main(int argc, char** argv)
    container.Insert(w_sh);
 
 // dmax fraction
-// dmax fraction
    container.Insert(dmax_fraction);
 
    background.SetupObject(container);
@@ -99,6 +90,7 @@ int main(int argc, char** argv)
 //--------------------------------------------------------------------------------------------------
 // Diffusion model
 //--------------------------------------------------------------------------------------------------
+   
    container.Clear();
 
 // Reference diffusion coefficient
@@ -126,117 +118,66 @@ int main(int argc, char** argv)
    diffusion.SetupObject(container);
 
 //--------------------------------------------------------------------------------------------------
-// Iteratively solve linear system of equations
+// Trajectory Loop
 //--------------------------------------------------------------------------------------------------
 
-// Allocate memory
-   h_new = Create2D<double>(Nz+2, Np+2);
-   h_old = Create2D<double>(Nz+2, Np+2);
-   RHS_old = Create2D<double>(Nz+2, Np+2);
-   u = new double[Nz];
-   k = new double[Nz];
-   du_dx = new double[Nz];
-   dk_dx = new double[Nz];
+// Load command line arguments
+   double x_init = 0.0;
+   if (argc > 1) x_init = atof(argv[1]);
+   double t_final = t_arr[0];
+   if (argc > 2) t_final = t_arr[atoi(argv[2])];
 
-   dt = CFL * Sqr(dz) / kappa_up;
-   dt_dx = dt / dz / 4.0;
-   dt_dx2 = dt / Sqr(dz) / 2.0;
-   dt_dlnp = dt / dlogp / 6.0;
-
-// Precompute values
-   t = 0.0;
+// Initialize variables
    x = gv_zeros;
    p = gv_zeros;
-   for (i = 0; i < Nz; i++) {
-      x[0] = z_arr[i];
-      background.GetFields(t, x, p, spdata);
-      u[i] = spdata.Uvec[0];
-      k[i] = diffusion.GetComponent(1, t, x, p, spdata);
-      du_dx[i] = spdata.gradUvec[0][0];
-      dk_dx[i] = diffusion.GetDirectionalDerivative(0);
-   };
-
-// Initialize system: Domain
-   for (j = 1; j < Np+1; j++) {
-      IC = pow(n_chld, floor(n_thrs * (log10(p_arr[j-1]) - logp0) / (logpf - logp0)));
-      for (i = 1; i < Nz+1; i++) {
-         h_old[i][j] = IC;
-         h_new[i][j] = IC;
+   p[0] = p0;
+   divK = gv_zeros;
+   distro = 0.0;
+   counter = n_traj;
+   n_traj_10 = n_traj / 10;
+   while (counter > 0) {
+      if (comm_rank == 0) {
+         if (counter % n_traj_10 == 0) std::cerr << counter << std::endl;
       };
-   };
-// Initialize system: Edges
-   for (i = 1; i < Nz+1; i++) {
-      h_old[i][0] = 0.0;
-      h_old[i][Np+1] = 0.0;
-      h_new[i][0] = 0.0;
-      h_new[i][Np+1] = 0.0;
-   };
-   for (j = 1; j < Np+1; j++) {
-      h_old[0][j] = 0.0;
-      h_old[Nz+1][j] = 0.0;
-      h_new[0][j] = 0.0;
-      h_new[Nz+1][j] = 0.0;
-   };
-// Initialize system: Corners
-   h_old[0][0] = 0.0;
-   h_old[0][Np+1] = 0.0;
-   h_old[Nz+1][0] = 0.0;
-   h_old[Nz+1][Np+1] = 0.0;
-   h_new[0][0] = 0.0;
-   h_new[0][Np+1] = 0.0;
-   h_new[Nz+1][0] = 0.0;
-   h_new[Nz+1][Np+1] = 0.0;
+// Initialize particle
+      t = 0.0;
+      x[0] = x_init;
+      lnw = 0.0;
 
-// Iterate through time
-   time_index = 3;
-   std::cout << "t_f = " << t_arr[time_index] << std::endl;
-   while (t < t_arr[time_index]) {
-      std::cout << "\rt = " << t;
-      for (i = 1; i < Nz+1; i++) {
-         for (j = 1; j < Np+1; j++) {
-            RHS_old[i][j] = h_old[i][j]
-                          - (u[i-1] - dk_dx[i-1]) * dt_dx * (h_old[i+1][j] - h_old[i-1][j])
-                          + k[i-1] * dt_dx2 * (h_old[i+1][j] - 2.0 * h_old[i][j] + h_old[i-1][j])
-                          + du_dx[i-1] * (h_old[i][j+1] - h_old[i][j-1]);
-         };
+// Time loop
+      while (t < t_final) {
+         background.GetFields(t, x, p, spdata);
+
+// Compute Kpara and grad(Kpara) and assemble diffusion tensor
+         Kpara = diffusion.GetComponent(1, t, x, p, spdata);
+         divK[0] = diffusion.GetDirectionalDerivative(0);
+
+// Take step
+         dt = fmin(spdata.dmax / (spdata.Uvec + divK).Norm(), Sqr(spdata.dmax) / Kpara);
+         t += dt;
+         x[0] += (spdata.Uvec[0] + divK[0]) * dt + sqrt(2.0 * Kpara * dt) * rng.GetNormal();
+         lnw -= alpha_3 * spdata.divU() * dt;
       };
-// Perform Jacobi iterations
-      iter = 0;
-      do {
-         for (i = 1; i < Nz+1; i++) memcpy(h_old[i]+1, h_new[i]+1, Np * sizeof(double));
-         for (i = 1; i < Nz+1; i++) {
-            for (j = 1; j < Np+1; j++) {
-               RHS_new = (u[i-1] - dk_dx[i-1]) * dt_dx * (h_old[i+1][j] - h_old[i-1][j])
-                       - k[i-1] * dt_dx2 * (h_old[i+1][j] + h_old[i-1][j])
-                       - du_dx[i-1] * (h_old[i][j+1] - h_old[i][j-1]);
-               h_new[i][j] = (RHS_old[i][j] - RHS_new) / (1.0 - 2.0 * k[i-1] * dt_dx2);
-            };
-         };
-         iter++;
-      } while (norm1(h_old, h_new) > eps);
-      for (i = 1; i < Nz+1; i++) memcpy(h_old[i]+1, h_new[i]+1, Np * sizeof(double));
-      t += dt;
-   };
-   std::cout << "\rt = " << t_arr[time_index] << std::endl;
+      counter--;
 
-// Output to data
-   std::ofstream output_dsa_file(outfilename);
-   for (i = 1; i < Nz+1; i++) {
-      for (j = 1; j < Np+1; j++) {
-         output_dsa_file << std::setw(20) << h_new[i][j];
-      };
-      output_dsa_file << std::endl;
+// Bin particle
+      distro += exp(lnw);
    };
-   output_dsa_file.close();
+   distro /= n_traj;
 
-// Clean-up
-   Delete2D(h_new);
-   Delete2D(h_old);
-   Delete2D(RHS_old);
-   delete[] u;
-   delete[] k;
-   delete[] du_dx;
-   delete[] dk_dx;
+// Share results
+   MPI_Reduce(&distro, &distro_out, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+
+// Output results
+   std::cout << std::setprecision(6);
+   if (comm_rank == 0) {
+      std::cout << std::setw(18) << x_init
+                << std::setw(18) << distro_out / comm_size
+                << std::endl;
+   };
+
+// Finalize the MPI environment.
+   MPI_Finalize();
 
    return 0;
 };

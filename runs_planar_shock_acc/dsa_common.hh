@@ -36,12 +36,12 @@ double amp;                   // Scaling factor for analytic solution
 double dmax;                  // Maximum trajectory displacement away from shock
 double w_sh;                  // Shock width
 double dmax_fraction;         // Ratio of shock width to impose as maximum trajectory displacement near shock
-const int Np = 1000;          // Number of momentum bins
+const int Np = 100;           // Number of momentum bins
 double pf;                    // Upper limit in momentum range
 double logp0;                 // Logarithm of p0
 double logpf;                 // Logarithm of pf
 double dlogp;                 // Difference between logarithms of p0 and pf
-const int Nz = 1000;          // Number of spatial bins
+const int Nz = 100;           // Number of spatial bins
 double z0;                    // Lower limit of spatial range
 double zf;                    // Upper limit of spatial range
 double dz;                    // Spatial bin size
