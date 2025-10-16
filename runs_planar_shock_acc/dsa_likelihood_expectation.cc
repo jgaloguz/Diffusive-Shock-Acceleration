@@ -18,6 +18,13 @@ int main(int argc, char** argv)
    MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
    MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank);
 
+// Header message
+   if (comm_rank == 0) {
+      std::cerr << "Number of CPUs: " << comm_size << std::endl;
+      std::cerr << "Number of trajectories per CPU: " << n_traj << std::endl;
+      std::cerr << std::endl;
+   };
+
    int i, j, k, counter, n_traj_10;
    double t, dt, Kpara, lnw, alpha_3;
    double distro, distro_out;
@@ -156,12 +163,12 @@ int main(int argc, char** argv)
          dt = fmin(spdata.dmax / (spdata.Uvec + divK).Norm(), Sqr(spdata.dmax) / Kpara);
          t += dt;
          x[0] += (spdata.Uvec[0] + divK[0]) * dt + sqrt(2.0 * Kpara * dt) * rng.GetNormal();
-         lnw -= alpha_3 * spdata.divU() * dt;
+         lnw += alpha_3 * spdata.divU() * dt;
       };
       counter--;
 
 // Bin particle
-      distro += exp(lnw);
+      distro += exp(-lnw);
    };
    distro /= n_traj;
 
@@ -169,10 +176,14 @@ int main(int argc, char** argv)
    MPI_Reduce(&distro, &distro_out, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
 // Output results
+   x[0] = x_init;
+   background.GetFields(0.0, x, p, spdata);
+   Kpara = diffusion.GetComponent(1, 0.0, x, p, spdata);
    std::cout << std::setprecision(6);
    if (comm_rank == 0) {
       std::cout << std::setw(18) << x_init
                 << std::setw(18) << distro_out / comm_size
+                << std::setw(18) << Kpara
                 << std::endl;
    };
 

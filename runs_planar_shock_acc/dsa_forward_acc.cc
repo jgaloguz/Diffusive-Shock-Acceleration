@@ -24,7 +24,73 @@ inline double dlnAdx(double x)
 };
 inline double d2lnAdx2(double x)
 {
-   return Sqr(dlnAdx(x,w_sh)) * (1.0 - 1.0 / A0 / w_sh) + (A0 / w_sh);
+   return Sqr(dlnAdx(x)) * (1.0 - 1.0 / A0 / w_sh) + (A0 / w_sh);
+};
+
+// Function to accumulate path density
+void AccumulatePathDensity(double **pd0, double **pd1,
+                           double **pd2, double **pd3,
+                           std::vector<double> t_hist,
+                           std::vector<double> x_hist,
+                           std::vector<double> p_hist)
+{
+   int i = 0, j, k;
+   int size;
+   double dt;
+
+// Earliest time
+   size = LocateInArray(0, t_hist.size()-1, t_hist.data(), t_arr[0], false);
+   while (i < size) {
+      j = LocateInArray(0, Nz, z_arr_edges, x_hist[i], false);
+      k = LocateInArray(0, Np, p_arr_edges, p_hist[i], false);
+      if(j >= 0 && k >= 0) {
+         dt = t_hist[i+1] - t_hist[i];
+         pd0[j][k] += dt;
+         pd1[j][k] += dt;
+         pd2[j][k] += dt;
+         pd3[j][k] += dt;
+      };
+      i++;
+   };
+
+// Next time
+   size = LocateInArray(0, t_hist.size()-1, t_hist.data(), t_arr[1], false);
+   while (i < size) {
+      j = LocateInArray(0, Nz, z_arr_edges, x_hist[i], false);
+      k = LocateInArray(0, Np, p_arr_edges, p_hist[i], false);
+      if(j >= 0 && k >= 0) {
+         dt = t_hist[i+1] - t_hist[i];
+         pd1[j][k] += dt;
+         pd2[j][k] += dt;
+         pd3[j][k] += dt;
+      };
+      i++;
+   };
+
+// Next time
+   size = LocateInArray(0, t_hist.size()-1, t_hist.data(), t_arr[2], false);
+   while (i < size) {
+      j = LocateInArray(0, Nz, z_arr_edges, x_hist[i], false);
+      k = LocateInArray(0, Np, p_arr_edges, p_hist[i], false);
+      if(j >= 0 && k >= 0) {
+         dt = t_hist[i+1] - t_hist[i];
+         pd2[j][k] += dt;
+         pd3[j][k] += dt;
+      };
+      i++;
+   };
+
+// Last time
+   size = LocateInArray(0, t_hist.size()-1, t_hist.data(), t_arr[3], false);
+   while (i < size) {
+      j = LocateInArray(0, Nz, z_arr_edges, x_hist[i], false);
+      k = LocateInArray(0, Np, p_arr_edges, p_hist[i], false);
+      if(j >= 0 && k >= 0) {
+         dt = t_hist[i+1] - t_hist[i];
+         pd3[j][k] += dt;
+      };
+      i++;
+   };
 };
 
 int main(int argc, char** argv)
@@ -35,11 +101,20 @@ int main(int argc, char** argv)
    MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
    MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank);
 
-   int i, j, k, counter;
+// Header message
+   if (comm_rank == 0) {
+      std::cerr << "Number of CPUs: " << comm_size << std::endl;
+      std::cerr << "Number of trajectories per CPU: " << n_traj << std::endl;
+      std::cerr << std::endl;
+   };
+
+   int i, j, k, counter, idx;
    double t, dt, Kpara, lnw, dA;
+   double **pd0, **pd1, **pd2, **pd3;
+   double **pd0_out, **pd1_out, **pd2_out, **pd3_out;
    GeoVector x, p, divK;
    SpatialData spdata;
-   std::string outfilename;
+   std::string outfilename1, outfilename2;
 
    DataContainer container;
    BackgroundSmoothShock background;
@@ -48,11 +123,34 @@ int main(int argc, char** argv)
 
    bool child = false;
    int i_splt = -1, p_level, p_level_new, n_splits = 0, n_splits_out = 0;
-   double t_splt[max_splt] = {0.0};
-   double x_splt[max_splt] = {0.0};
-   double p_splt[max_splt] = {0.0};
-   double lnw_splt[max_splt] = {0.0};
+   std::vector<int> idx_splt;
+   std::vector<double> t_hist;
+   std::vector<double> x_hist;
+   std::vector<double> p_hist;
+   std::vector<double> lnw_splt;
    double p_thrs[n_thrs] = {0.0};
+
+// Allocate memory
+   pd0 = Create2D<double>(Nz, Np);
+   pd1 = Create2D<double>(Nz, Np);
+   pd2 = Create2D<double>(Nz, Np);
+   pd3 = Create2D<double>(Nz, Np);
+   pd0_out = Create2D<double>(Nz, Np);
+   pd1_out = Create2D<double>(Nz, Np);
+   pd2_out = Create2D<double>(Nz, Np);
+   pd3_out = Create2D<double>(Nz, Np);
+   for (j = 0; j < Nz; j++) {
+      for (k = 0; k < Np; k++) {
+         pd0[j][k] = 0.0;
+         pd1[j][k] = 0.0;
+         pd2[j][k] = 0.0;
+         pd3[j][k] = 0.0;
+         pd0_out[j][k] = 0.0;
+         pd1_out[j][k] = 0.0;
+         pd2_out[j][k] = 0.0;
+         pd3_out[j][k] = 0.0;
+      };
+   };
 
    ReadParams();
    DefineArrays();
@@ -60,9 +158,9 @@ int main(int argc, char** argv)
    double dlogp_splt = (logpf - logp0) / n_thrs;
    for (i = 0; i < n_thrs; i++) p_thrs[i] = pow(10.0, logp0 + (i + 0.5) * dlogp_splt);
 
-   j = LocateInArray(0, Nz-1, z_arr, z_spectrum, false);
-   double z1 = z_arr[j];
-   double z2 = z_arr[j+1];
+   j = LocateInArray(0, Nz, z_arr_edges, z_spectrum, false);
+   double z1 = z_arr_edges[j];
+   double z2 = z_arr_edges[j+1];
    double distro[Np] = {0.0};
    double distro_out[Np] = {0.0};
    spdata._mask = BACKGROUND_U | BACKGROUND_B | BACKGROUND_gradU | BACKGROUND_gradB;
@@ -162,20 +260,37 @@ int main(int argc, char** argv)
       };
 // Initialize particle
       if (child) {
-         t = t_splt[i_splt];
-         x[0] = x_splt[i_splt];
-         p[0] = p_splt[i_splt];
+// State variables
+         idx = idx_splt.back();
+         t = t_hist[idx];
+         x[0] = x_hist[idx];
+         p[0] = p_hist[idx];
          p_level = LocateInArray(0, n_thrs-1, p_thrs, p[0], true);
-         lnw = lnw_splt[i_splt];
+         lnw = lnw_splt.back();
          i_splt--;
          if (i_splt < 0) child = false;
+// History arrays
+         idx_splt.pop_back();
+         t_hist.resize(idx+1);
+         x_hist.resize(idx+1);
+         p_hist.resize(idx+1);
+         lnw_splt.pop_back();
       }
       else {
+// State variables
          t = rng.GetUniform() * tf;
          x[0] = 0.0;
          p[0] = p0;
          p_level = -1;
          lnw = 0.0;
+// History arrays
+         t_hist.clear();
+         x_hist.clear();
+         p_hist.clear();
+         idx = 0;
+         t_hist.push_back(t);
+         x_hist.push_back(x[0]);
+         p_hist.push_back(p[0]);
       };
 
 // Time loop
@@ -186,19 +301,18 @@ int main(int argc, char** argv)
          Kpara = diffusion.GetComponent(1, t, x, p, spdata);
          divK[0] = diffusion.GetDirectionalDerivative(0);
 
-// Take step
+// Take step and update state variables
          dt = fmin(spdata.dmax / (spdata.Uvec + divK).Norm(), Sqr(spdata.dmax) / Kpara);
          dt = 0.5 * fmin(dt, 3.0 * 0.01 / fabs(spdata.divU()));
+         idx++;
          t += dt;
          x[0] += (spdata.Uvec[0] + divK[0]) * dt + sqrt(2.0 * Kpara * dt) * rng.GetNormal();
          p[0] -= p[0] * spdata.divU() * dt / 3.0;
-#ifdef ENABLE_IMPORTANCE
+#if defined(ENABLE_IMPORTANCE)
          dA = dlnAdx(x[0]);
          x[0] -= 2.0 * Kpara * dA * dt;
          lnw -= ((spdata.Uvec[0] + divK[0]) * dA + Kpara * d2lnAdx2(x[0])) * dt;
-#endif
-
-#ifdef ENABLE_SPLITTING
+#elif defined(ENABLE_SPLITTING)
 // Check momentum splitting threshold crossing
          p_level_new = LocateInArray(0, n_thrs-1, p_thrs, p[0], true);
          if (p_level_new > p_level) {
@@ -208,52 +322,101 @@ int main(int argc, char** argv)
             lnw += child_lnw;
             for (i = 1; i < n_chld; i++) {
                i_splt++;
-               t_splt[i_splt] = t;
-               x_splt[i_splt] = x[0];
-               p_splt[i_splt] = p[0];
-               lnw_splt[i_splt] = lnw;
+               idx_splt.push_back(idx);
+               lnw_splt.push_back(lnw);
                counter++;
             };
          };
 #endif
+// Update history arrays
+         t_hist.push_back(t);
+         x_hist.push_back(x[0]);
+         p_hist.push_back(p[0]);
       };
       counter--;
+      AccumulatePathDensity(pd0, pd1, pd2, pd3,
+                            t_hist, x_hist, p_hist);
 
 // Bin particle
       if (z1 < x[0] && x[0] < z2) {
-         k = LocateInArray(0, Np-1, p_arr, p[0], false);
+         k = LocateInArray(0, Np, p_arr_edges, p[0], false);
          if (k + 1) distro[k] += exp(lnw);
       };
    };
 
 // Share results
-   MPI_Reduce(distro, distro_out, 100, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+   MPI_Reduce(pd0[0], pd0_out[0], Nz*Np, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+   MPI_Reduce(pd1[0], pd1_out[0], Nz*Np, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+   MPI_Reduce(pd2[0], pd2_out[0], Nz*Np, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+   MPI_Reduce(pd3[0], pd3_out[0], Nz*Np, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+   MPI_Reduce(distro, distro_out, Np, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
    MPI_Reduce(&n_splits, &n_splits_out, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
 // Output results
    if (comm_rank == 0) {
       std::cerr << std::endl << "Number of splits = " << n_splits_out << std::endl;
-      outfilename = "dsa_results/dsa_forward_mom_" + std::to_string(Nt-1) + "_pp";
-#ifdef ENABLE_SPLITTING
-      outfilename += "_split.dat";
+      outfilename1 = "dsa_results/dsa_forward_path_dens_pp";
+      outfilename2 = "dsa_results/dsa_forward_mom_" + std::to_string(Nt-1) + "_pp";
+#if defined(ENABLE_IMPORTANCE)
+      outfilename1 += "_imps.dat";
+      outfilename2 += "_imps.dat";
+      std::cerr << std::endl << "IMPORTANCE" << std::endl;
+#elif defined(ENABLE_SPLITTING)
+      outfilename1 += "_split.dat";
+      outfilename2 += "_split.dat";
       std::cerr << std::endl << "SPLITTING" << std::endl;
 #else
-#ifdef ENABLE_IMPORTANCE
-      outfilename += "_imps.dat";
-      std::cerr << std::endl << "IMPORTANCE" << std::endl;
-#else
-      outfilename += "_baseline.dat";
+      outfilename1 += "_baseline.dat";
+      outfilename2 += "_baseline.dat";
       std::cerr << std::endl << "BASELINE" << std::endl;
 #endif
-#endif
-      std::ofstream output_dsa_file(outfilename);
+// Path densities
+      std::ofstream output_dsa_file1(outfilename1);
+      for(j = 0; j < Nz; j++) {
+         for(k = 0; k < Np; k++) {
+            output_dsa_file1 << std::setw(20) 
+                             << pd0_out[j][k] / (dz * dp_arr[k]) / (n_traj * comm_size);
+         };
+         output_dsa_file1 << std::endl;
+      };
+      for(j = 0; j < Nz; j++) {
+         for(k = 0; k < Np; k++) {
+            output_dsa_file1 << std::setw(20) 
+                             << pd1_out[j][k] / (dz * dp_arr[k]) / (n_traj * comm_size);
+         };
+         output_dsa_file1 << std::endl;
+      };
+      for(j = 0; j < Nz; j++) {
+         for(k = 0; k < Np; k++) {
+            output_dsa_file1 << std::setw(20) 
+                             << pd2_out[j][k] / (dz * dp_arr[k]) / (n_traj * comm_size);
+         };
+         output_dsa_file1 << std::endl;
+      };
+      for(j = 0; j < Nz; j++) {
+         for(k = 0; k < Np; k++) {
+            output_dsa_file1 << std::setw(20) 
+                             << pd3_out[j][k] / (dz * dp_arr[k]) / (n_traj * comm_size);
+         };
+         output_dsa_file1 << std::endl;
+      };
+      output_dsa_file1.close();
+
+// Spectrum near shock
+      std::ofstream output_dsa_file2(outfilename2);
       for(k = 0; k < Np; k++) {
-         output_dsa_file << std::setw(20) << EnrKin(p_arr[k], specie) / one_MeV
+         output_dsa_file2 << std::setw(20) << EnrKin(p_arr[k], specie) / one_MeV
                          << std::setw(20) << distro_out[k] / (dz * dp_arr[k]) * Q * tf / (n_traj * comm_size)
                          << std::endl;
       };
-      output_dsa_file.close();
+      output_dsa_file2.close();
    };
+
+// Free memory
+   Delete2D(pd0);
+   Delete2D(pd1);
+   Delete2D(pd2);
+   Delete2D(pd3);
 
 // Finalize the MPI environment.
    MPI_Finalize();

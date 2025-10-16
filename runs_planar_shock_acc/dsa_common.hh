@@ -6,11 +6,10 @@
 using namespace Spectrum;
 
 #define ENABLE_SPLITTING                              // Flag to enable particle splitting
-#define ENABLE_IMPORTANCE                             // Flag to enable importance sampling
+// #define ENABLE_IMPORTANCE                             // Flag to enable importance sampling
 #define n_traj 1000                                   // Number of trajectories per process
 #define n_chld 2                                      // Number of child particles per split
 #define n_thrs 10                                     // Number of momentum thresholds to split
-#define max_splt 100000                               // Maximum number of splits per trajectory
 #define A0 0.1                                        // Importance sampling constant
 
 // Constants
@@ -53,8 +52,10 @@ double logtf;                 // Logarithm of tf
 double dlogt;                 // Difference between logarithms of t0 and tf
 
 double p_arr[Np];             // Momentum bin centers
+double p_arr_edges[Np+1];     // Momentum bin edges
 double dp_arr[Np];            // Momentum bin sizes
 double z_arr[Nz];             // Spatial bin centers
+double z_arr_edges[Nz+1];     // Spatial bin edges
 double z_spectrum;            // Spatial location where to plot spectrum
 double t_arr[Nt];             // Time bin centers
 
@@ -107,9 +108,15 @@ void DefineArrays(void)
    for (i = 0; i < Np; i++) {
       p_arr[i] = pow(10.0, logp0 + (i + 0.5) * dlogp);
       dp_arr[i] = pow(10.0, logp0 + (i + 1) * dlogp) - pow(10.0, logp0 + i * dlogp);
+      p_arr_edges[i] = pow(10.0, logp0 + i * dlogp);
    };
+   p_arr_edges[Np] = pow(10.0, logpf);
 // Position
-   for (i = 0; i < Nz; i++) z_arr[i] = z0 + (i + 0.5) * dz;
+   for (i = 0; i < Nz; i++) {
+      z_arr[i] = z0 + (i + 0.5) * dz;
+      z_arr_edges[i] = z0 + i * dz;
+   };
+   z_arr_edges[Nz] = zf;
 // Time
    for (i = 0; i < Nt; i++) t_arr[i] = pow(10.0, logt0 + i * dlogt);
 };
