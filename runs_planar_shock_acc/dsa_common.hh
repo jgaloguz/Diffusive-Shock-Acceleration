@@ -5,12 +5,12 @@
 
 using namespace Spectrum;
 
-#define ENABLE_SPLITTING                              // Flag to enable particle splitting
+// #define ENABLE_SPLITTING                              // Flag to enable particle splitting
 // #define ENABLE_IMPORTANCE                             // Flag to enable importance sampling
-#define n_traj 1000                                   // Number of trajectories per process
+#define n_traj 100000                                 // Number of trajectories per process
 #define n_chld 2                                      // Number of child particles per split
 #define n_thrs 10                                     // Number of momentum thresholds to split
-#define A0 0.1                                        // Importance sampling constant
+#define A0 0.5                                        // Importance sampling constant
 
 // Constants
 const int specie = Specie::proton;

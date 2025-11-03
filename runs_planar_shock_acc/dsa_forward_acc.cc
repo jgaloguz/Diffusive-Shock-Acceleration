@@ -28,68 +28,17 @@ inline double d2lnAdx2(double x)
 };
 
 // Function to accumulate path density
-void AccumulatePathDensity(double **pd0, double **pd1,
-                           double **pd2, double **pd3,
-                           std::vector<double> t_hist,
-                           std::vector<double> x_hist,
-                           std::vector<double> p_hist)
+void ConditionalPathDensity(double **pd, double bin_time, std::vector<double> t_hist,
+                            std::vector<double> x_hist, std::vector<double> p_hist)
 {
    int i = 0, j, k;
-   int size;
-   double dt;
 
-// Earliest time
-   size = LocateInArray(0, t_hist.size()-1, t_hist.data(), t_arr[0], false);
-   while (i < size) {
+// Bin path
+   i = LocateInArray(0, t_hist.size()-1, t_hist.data(), bin_time, false);
+   if (i >= 0) {
       j = LocateInArray(0, Nz, z_arr_edges, x_hist[i], false);
       k = LocateInArray(0, Np, p_arr_edges, p_hist[i], false);
-      if(j >= 0 && k >= 0) {
-         dt = t_hist[i+1] - t_hist[i];
-         pd0[j][k] += dt;
-         pd1[j][k] += dt;
-         pd2[j][k] += dt;
-         pd3[j][k] += dt;
-      };
-      i++;
-   };
-
-// Next time
-   size = LocateInArray(0, t_hist.size()-1, t_hist.data(), t_arr[1], false);
-   while (i < size) {
-      j = LocateInArray(0, Nz, z_arr_edges, x_hist[i], false);
-      k = LocateInArray(0, Np, p_arr_edges, p_hist[i], false);
-      if(j >= 0 && k >= 0) {
-         dt = t_hist[i+1] - t_hist[i];
-         pd1[j][k] += dt;
-         pd2[j][k] += dt;
-         pd3[j][k] += dt;
-      };
-      i++;
-   };
-
-// Next time
-   size = LocateInArray(0, t_hist.size()-1, t_hist.data(), t_arr[2], false);
-   while (i < size) {
-      j = LocateInArray(0, Nz, z_arr_edges, x_hist[i], false);
-      k = LocateInArray(0, Np, p_arr_edges, p_hist[i], false);
-      if(j >= 0 && k >= 0) {
-         dt = t_hist[i+1] - t_hist[i];
-         pd2[j][k] += dt;
-         pd3[j][k] += dt;
-      };
-      i++;
-   };
-
-// Last time
-   size = LocateInArray(0, t_hist.size()-1, t_hist.data(), t_arr[3], false);
-   while (i < size) {
-      j = LocateInArray(0, Nz, z_arr_edges, x_hist[i], false);
-      k = LocateInArray(0, Np, p_arr_edges, p_hist[i], false);
-      if(j >= 0 && k >= 0) {
-         dt = t_hist[i+1] - t_hist[i];
-         pd3[j][k] += dt;
-      };
-      i++;
+      if (j >= 0 && k >= 0) pd[j][k] += 1.0;
    };
 };
 
@@ -114,7 +63,7 @@ int main(int argc, char** argv)
    double **pd0_out, **pd1_out, **pd2_out, **pd3_out;
    GeoVector x, p, divK;
    SpatialData spdata;
-   std::string outfilename1, outfilename2;
+   std::string outfilename1;
 
    DataContainer container;
    BackgroundSmoothShock background;
@@ -294,7 +243,7 @@ int main(int argc, char** argv)
       };
 
 // Time loop
-      while (t < tf) {
+      while (t < t_arr[3]) {
          background.GetFields(t, x, p, spdata);
 
 // Compute Kpara and grad(Kpara) and assemble diffusion tensor
@@ -334,8 +283,10 @@ int main(int argc, char** argv)
          p_hist.push_back(p[0]);
       };
       counter--;
-      AccumulatePathDensity(pd0, pd1, pd2, pd3,
-                            t_hist, x_hist, p_hist);
+      ConditionalPathDensity(pd0, t_arr[0], t_hist, x_hist, p_hist);
+      ConditionalPathDensity(pd1, t_arr[1], t_hist, x_hist, p_hist);
+      ConditionalPathDensity(pd2, t_arr[2], t_hist, x_hist, p_hist);
+      ConditionalPathDensity(pd3, t_arr[3], t_hist, x_hist, p_hist);
 
 // Bin particle
       if (z1 < x[0] && x[0] < z2) {
@@ -356,18 +307,14 @@ int main(int argc, char** argv)
    if (comm_rank == 0) {
       std::cerr << std::endl << "Number of splits = " << n_splits_out << std::endl;
       outfilename1 = "dsa_results/dsa_forward_path_dens_pp";
-      outfilename2 = "dsa_results/dsa_forward_mom_" + std::to_string(Nt-1) + "_pp";
 #if defined(ENABLE_IMPORTANCE)
       outfilename1 += "_imps.dat";
-      outfilename2 += "_imps.dat";
       std::cerr << std::endl << "IMPORTANCE" << std::endl;
 #elif defined(ENABLE_SPLITTING)
       outfilename1 += "_split.dat";
-      outfilename2 += "_split.dat";
       std::cerr << std::endl << "SPLITTING" << std::endl;
 #else
       outfilename1 += "_baseline.dat";
-      outfilename2 += "_baseline.dat";
       std::cerr << std::endl << "BASELINE" << std::endl;
 #endif
 // Path densities
@@ -375,41 +322,32 @@ int main(int argc, char** argv)
       for(j = 0; j < Nz; j++) {
          for(k = 0; k < Np; k++) {
             output_dsa_file1 << std::setw(20) 
-                             << pd0_out[j][k] / (dz * dp_arr[k]) / (n_traj * comm_size);
+                             << pd0_out[j][k] * Q * tf / (dz * dp_arr[k]) / (n_traj * comm_size);
          };
          output_dsa_file1 << std::endl;
       };
       for(j = 0; j < Nz; j++) {
          for(k = 0; k < Np; k++) {
             output_dsa_file1 << std::setw(20) 
-                             << pd1_out[j][k] / (dz * dp_arr[k]) / (n_traj * comm_size);
+                             << pd1_out[j][k] * Q * tf / (dz * dp_arr[k]) / (n_traj * comm_size);
          };
          output_dsa_file1 << std::endl;
       };
       for(j = 0; j < Nz; j++) {
          for(k = 0; k < Np; k++) {
             output_dsa_file1 << std::setw(20) 
-                             << pd2_out[j][k] / (dz * dp_arr[k]) / (n_traj * comm_size);
+                             << pd2_out[j][k] * Q * tf / (dz * dp_arr[k]) / (n_traj * comm_size);
          };
          output_dsa_file1 << std::endl;
       };
       for(j = 0; j < Nz; j++) {
          for(k = 0; k < Np; k++) {
             output_dsa_file1 << std::setw(20) 
-                             << pd3_out[j][k] / (dz * dp_arr[k]) / (n_traj * comm_size);
+                             << pd3_out[j][k] * Q * tf / (dz * dp_arr[k]) / (n_traj * comm_size);
          };
          output_dsa_file1 << std::endl;
       };
       output_dsa_file1.close();
-
-// Spectrum near shock
-      std::ofstream output_dsa_file2(outfilename2);
-      for(k = 0; k < Np; k++) {
-         output_dsa_file2 << std::setw(20) << EnrKin(p_arr[k], specie) / one_MeV
-                         << std::setw(20) << distro_out[k] / (dz * dp_arr[k]) * Q * tf / (n_traj * comm_size)
-                         << std::endl;
-      };
-      output_dsa_file2.close();
    };
 
 // Free memory
