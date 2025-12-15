@@ -79,14 +79,23 @@ int main(int argc, char** argv)
    dsa_analytic_file.open("dsa_results/dsa_analytic_pos.dat");
    for (j = 0; j < Nz; j++) dsa_analytic_file << std::setw(16) << z_arr[j] / one_au << std::endl;
    dsa_analytic_file.close();
-// Output momentum (kinetic energy) grid
+// Output momentum grid
    dsa_analytic_file.open("dsa_results/dsa_analytic_mom.dat");
    for (k = 0; k < Np; k++) dsa_analytic_file << std::setw(16) << p_arr[k] / p0 << std::endl;
    dsa_analytic_file.close();
-// Output momentum (kinetic energy) grid
+   dsa_analytic_file.open("dsa_results/dsa_analytic_dmom.dat");
+   for (k = 0; k < Np; k++) dsa_analytic_file << std::setw(16) << dp_arr[k] / p0 << std::endl;
+   dsa_analytic_file.close();
+// Output kinetic energy grid
    dsa_analytic_file.open("dsa_results/dsa_analytic_enr.dat");
    for (k = 0; k < Np; k++) dsa_analytic_file << std::setw(16) << EnrKin(p_arr[k], specie) / one_MeV << std::endl;
    dsa_analytic_file.close();
+
+// Output useful quantities for enhanced sampling methods
+   std::cout << std::setprecision(12);
+   std::cout << "alpha = "
+             << n_thrs * log(n_chld * p_chld + (n_chld - 1) * (1.0 - p_chld)) / log(pf / p0)
+             << std::endl;
 
    return 0;
 };

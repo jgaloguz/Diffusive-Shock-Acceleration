@@ -24,21 +24,23 @@ inline double dlnAdx(double x)
 };
 inline double d2lnAdx2(double x)
 {
-   return Sqr(dlnAdx(x)) * (1.0 - 1.0 / A0 / w_sh) + (A0 / w_sh);
+   return (A0 / w_sh) * (1.0 - Sqr(tanh(x / w_sh)));
 };
 
 // Function to accumulate path density
 void ConditionalPathDensity(double **pd, double bin_time, std::vector<double> t_hist,
-                            std::vector<double> x_hist, std::vector<double> p_hist)
+                            std::vector<double> x_hist, std::vector<double> p_hist,
+                            double weight)
 {
    int i = 0, j, k;
 
 // Bin path
    i = LocateInArray(0, t_hist.size()-1, t_hist.data(), bin_time, false);
    if (i >= 0) {
-      j = LocateInArray(0, Nz, z_arr_edges, x_hist[i], false);
-      k = LocateInArray(0, Np, p_arr_edges, p_hist[i], false);
-      if (j >= 0 && k >= 0) pd[j][k] += 1.0;
+      j = (x_hist[i] - z0) / dz;
+      k = (log10(p_hist[i]) - logp0) / dlogp;
+      if (k < 0) k = 0;
+      if (0 <= j && j < Nz && k < Np) pd[j][k] += weight;
    };
 };
 
@@ -58,12 +60,12 @@ int main(int argc, char** argv)
    };
 
    int i, j, k, counter, idx;
-   double t, dt, Kpara, lnw, dA;
+   double t, dt, Kpara, lnw, dA, d2A, bin_wgt;
    double **pd0, **pd1, **pd2, **pd3;
    double **pd0_out, **pd1_out, **pd2_out, **pd3_out;
    GeoVector x, p, divK;
    SpatialData spdata;
-   std::string outfilename1;
+   std::string outfilename1, outfilename2;
 
    DataContainer container;
    BackgroundSmoothShock background;
@@ -113,6 +115,11 @@ int main(int argc, char** argv)
    double distro[Np] = {0.0};
    double distro_out[Np] = {0.0};
    spdata._mask = BACKGROUND_U | BACKGROUND_B | BACKGROUND_gradU | BACKGROUND_gradB;
+   double alpha = n_thrs * log(n_chld * p_chld + (n_chld - 1) * (1.0 - p_chld)) / log(pf / p0);
+   double imps_fact = 1.0;
+#if defined(ENABLE_IMPORTANCE)
+   imps_fact = pow(cosh(0.5 * (z1 + z2) / w_sh), A0 * w_sh);
+#endif
 
 //--------------------------------------------------------------------------------------------------
 // Background
@@ -243,7 +250,7 @@ int main(int argc, char** argv)
       };
 
 // Time loop
-      while (t < t_arr[3]) {
+      while (t < tf) {
          background.GetFields(t, x, p, spdata);
 
 // Compute Kpara and grad(Kpara) and assemble diffusion tensor
@@ -251,29 +258,36 @@ int main(int argc, char** argv)
          divK[0] = diffusion.GetDirectionalDerivative(0);
 
 // Take step and update state variables
-         dt = fmin(spdata.dmax / (spdata.Uvec + divK).Norm(), Sqr(spdata.dmax) / Kpara);
-         dt = 0.5 * fmin(dt, 3.0 * 0.01 / fabs(spdata.divU()));
+         dt = fmin(Sqr(spdata.dmax) / Kpara, 3.0 * 0.01 / fabs(spdata.divU()));
+#if defined(ENABLE_IMPORTANCE)
+         dA = dlnAdx(x[0]);
+         d2A = d2lnAdx2(x[0]);
+         dt = 0.5 * fmin(dt, spdata.dmax / fabs(spdata.Uvec[0] + divK[0] - 2.0 * Kpara * dA));
+         x[0] -= 2.0 * Kpara * dA * dt;
+         lnw -= ((spdata.Uvec[0] + divK[0] - Kpara * dA) * dA + Kpara * d2A) * dt;
+#else
+         dt = 0.5 * fmin(dt, spdata.dmax / fabs(spdata.Uvec[0] + divK[0]));
+#endif
          idx++;
          t += dt;
          x[0] += (spdata.Uvec[0] + divK[0]) * dt + sqrt(2.0 * Kpara * dt) * rng.GetNormal();
          p[0] -= p[0] * spdata.divU() * dt / 3.0;
-#if defined(ENABLE_IMPORTANCE)
-         dA = dlnAdx(x[0]);
-         x[0] -= 2.0 * Kpara * dA * dt;
-         lnw -= ((spdata.Uvec[0] + divK[0]) * dA + Kpara * d2lnAdx2(x[0])) * dt;
-#elif defined(ENABLE_SPLITTING)
+#if defined(ENABLE_SPLITTING)
 // Check momentum splitting threshold crossing
          p_level_new = LocateInArray(0, n_thrs-1, p_thrs, p[0], true);
          if (p_level_new > p_level) {
-            n_splits++;
-            child = true;
             p_level = p_level_new;
-            lnw += child_lnw;
-            for (i = 1; i < n_chld; i++) {
-               i_splt++;
-               idx_splt.push_back(idx);
-               lnw_splt.push_back(lnw);
-               counter++;
+// Check if particle splits based on splitting probability
+            if (rng.GetUniform() < p_chld) {
+               n_splits++;
+               child = true;
+               lnw += child_lnw;
+               for (i = 1; i < n_chld; i++) {
+                  i_splt++;
+                  idx_splt.push_back(idx);
+                  lnw_splt.push_back(lnw);
+                  counter++;
+               };
             };
          };
 #endif
@@ -283,15 +297,21 @@ int main(int argc, char** argv)
          p_hist.push_back(p[0]);
       };
       counter--;
-      ConditionalPathDensity(pd0, t_arr[0], t_hist, x_hist, p_hist);
-      ConditionalPathDensity(pd1, t_arr[1], t_hist, x_hist, p_hist);
-      ConditionalPathDensity(pd2, t_arr[2], t_hist, x_hist, p_hist);
-      ConditionalPathDensity(pd3, t_arr[3], t_hist, x_hist, p_hist);
+#if defined(LIKELIHOOD_TEST)
+      bin_wgt = pow(p[0] / p0, alpha);
+#else
+      bin_wgt = 1.0;
+#endif
+      ConditionalPathDensity(pd0, t_arr[0], t_hist, x_hist, p_hist, bin_wgt);
+      ConditionalPathDensity(pd1, t_arr[1], t_hist, x_hist, p_hist, bin_wgt);
+      ConditionalPathDensity(pd2, t_arr[2], t_hist, x_hist, p_hist, bin_wgt);
+      ConditionalPathDensity(pd3, t_arr[3], t_hist, x_hist, p_hist, bin_wgt);
 
 // Bin particle
       if (z1 < x[0] && x[0] < z2) {
-         k = LocateInArray(0, Np, p_arr_edges, p[0], false);
-         if (k + 1) distro[k] += exp(lnw);
+         k = (log10(p[0]) - logp0) / dlogp;
+         if (k < 0) k = 0;
+         if (k < Np) distro[k] += exp(lnw);
       };
    };
 
@@ -306,15 +326,24 @@ int main(int argc, char** argv)
 // Output results
    if (comm_rank == 0) {
       std::cerr << std::endl << "Number of splits = " << n_splits_out << std::endl;
+      std::cerr << std::endl << "Importance factor = " << imps_fact << std::endl;
       outfilename1 = "dsa_results/dsa_forward_path_dens_pp";
-#if defined(ENABLE_IMPORTANCE)
-      outfilename1 += "_imps.dat";
-      std::cerr << std::endl << "IMPORTANCE" << std::endl;
-#elif defined(ENABLE_SPLITTING)
+      outfilename2 = "dsa_results/dsa_forward_mom_" + std::to_string(Nt-1) + "_pp";
+#if defined(ENABLE_SPLITTING)
       outfilename1 += "_split.dat";
+      outfilename2 += "_split.dat";
       std::cerr << std::endl << "SPLITTING" << std::endl;
+#elif defined(ENABLE_IMPORTANCE)
+      outfilename1 += "_imps.dat";
+      outfilename2 += "_imps.dat";
+      std::cerr << std::endl << "IMPORTANCE" << std::endl;
+#elif defined(LIKELIHOOD_TEST)
+      outfilename1 += "_ltest.dat";
+      outfilename2 += "_ltest.dat";
+      std::cerr << std::endl << "LIKELIHOOD TEST" << std::endl;
 #else
       outfilename1 += "_baseline.dat";
+      outfilename2 += "_baseline.dat";
       std::cerr << std::endl << "BASELINE" << std::endl;
 #endif
 // Path densities
@@ -348,6 +377,17 @@ int main(int argc, char** argv)
          output_dsa_file1 << std::endl;
       };
       output_dsa_file1.close();
+
+// Spectrum near shock
+      std::ofstream output_dsa_file2(outfilename2);
+      for(k = 0; k < Np; k++) {
+         output_dsa_file2 << std::setw(20) << EnrKin(p_arr[k], specie) / one_MeV
+                          << std::setw(20) << imps_fact * distro_out[k]
+                                            / (dz * dp_arr[k]) * Q * tf
+                                            / (n_traj * comm_size)
+                          << std::endl;
+      };
+      output_dsa_file2.close();
    };
 
 // Free memory

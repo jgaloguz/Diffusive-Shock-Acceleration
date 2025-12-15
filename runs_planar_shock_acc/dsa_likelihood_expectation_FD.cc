@@ -22,9 +22,9 @@ const double X4_FD = 10.0;
 const double dlogx_lft_FD = (log(-X2_FD) - log(-X1_FD)) / Nx_lft;
 const double dx_ctr = (X3_FD - X2_FD) / Nx_ctr;
 const double dlogx_rgt_FD = (log(X4_FD) - log(X3_FD)) / Nx_rgt;
-const double Tf_FD = 31.6 * one_day;
+const double Tf_FD = 30.0 * one_day;
 const double dt_FD = 1.0e-8;
-const double dt_out_FD = Tf_FD / 100.0;
+const double dt_out_FD = Tf_FD / 300.0;
 
 // Lax-Wendroff
 void LaxWendroff(double *fnew, double *fold, double *df, double *Kdf,
@@ -69,7 +69,7 @@ int main(int argc, char** argv)
 
    ReadParams();
    DefineArrays();
-   double alpha_3 = n_thrs * log(n_chld) / log(pf / p0) / 3.0;
+   double alpha_3 = n_thrs * log(n_chld * p_chld + (n_chld - 1) * (1.0 - p_chld)) / log(pf / p0) / 3.0;
 
    spdata._mask = BACKGROUND_U | BACKGROUND_B | BACKGROUND_gradU | BACKGROUND_gradB;
 

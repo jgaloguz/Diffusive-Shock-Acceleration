@@ -5,12 +5,15 @@
 
 using namespace Spectrum;
 
-// #define ENABLE_SPLITTING                              // Flag to enable particle splitting
+// AT MOST 1 of the following 3 flags can be defined for any run
+#define ENABLE_SPLITTING                              // Flag to enable particle splitting
 // #define ENABLE_IMPORTANCE                             // Flag to enable importance sampling
-#define n_traj 100000                                 // Number of trajectories per process
+// #define LIKELIHOOD_TEST                               // Flag to enable likelihood test
+#define n_traj 10000                                 // Number of trajectories per process
 #define n_chld 2                                      // Number of child particles per split
-#define n_thrs 10                                     // Number of momentum thresholds to split
-#define A0 0.5                                        // Importance sampling constant
+#define p_chld 0.023556                               // Probability of split per threshold crossing
+#define n_thrs 100                                    // Number of momentum thresholds to split
+#define A0 5.0                                        // Importance sampling constant
 
 // Constants
 const int specie = Specie::proton;
@@ -106,9 +109,9 @@ void DefineArrays(void)
    int i;
 // Momentum
    for (i = 0; i < Np; i++) {
+      p_arr_edges[i] = pow(10.0, logp0 + i * dlogp);
       p_arr[i] = pow(10.0, logp0 + (i + 0.5) * dlogp);
       dp_arr[i] = pow(10.0, logp0 + (i + 1) * dlogp) - pow(10.0, logp0 + i * dlogp);
-      p_arr_edges[i] = pow(10.0, logp0 + i * dlogp);
    };
    p_arr_edges[Np] = pow(10.0, logpf);
 // Position
@@ -118,7 +121,12 @@ void DefineArrays(void)
    };
    z_arr_edges[Nz] = zf;
 // Time
-   for (i = 0; i < Nt; i++) t_arr[i] = pow(10.0, logt0 + i * dlogt);
+   t_arr[0] = 1.0 * one_day;
+   t_arr[1] = 3.0 * one_day;
+   t_arr[2] = 10.0 * one_day;
+   t_arr[3] = 30.0 * one_day;
+   t_arr[4] = 100.0 * one_day;
+   tf = t_arr[3];
 };
 
 #endif

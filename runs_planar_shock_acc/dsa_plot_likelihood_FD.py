@@ -29,8 +29,13 @@ U = coeffs[:,1]
 K = coeffs[:,2]
 dU = coeffs[:,3]
 
+# Define importance sampling drift
+A0 = 1.0
+Lsh = 0.01
+tanh = -A0 * np.tanh(X[1:-1] / 0.01)
+
 # Plot solution
-t_idxs = [1, 70, 90, 97, 100]
+t_idxs = [0, 200, 270, 290, 300]
 t = [Tf_FD * (Nt_out - 1 - idx) / (Nt_out - 1) for idx in t_idxs]
 h = np.loadtxt("dsa_results/likelihood_solution_FD.dat")
 
@@ -47,7 +52,7 @@ ax.tick_params(axis='y', labelsize=20)
 ax.set_xlim(-12.0,3.0)
 ax.legend(fontsize=20)
 
-plt.savefig("likelihood_sol_slices.png")
+plt.savefig("dsa_results/likelihood_sol_slices.png")
 plt.show()
 plt.close(fig)
 
@@ -60,6 +65,8 @@ for idx in range(len(t_idxs)):
    logh = np.log(h[t_idxs[idx],:])
    dlogh = Cl * logh[:-2] + Cc * logh[1:-1] + Cr * logh[2:]
    ax.plot(X[1:-1], 2.0 * K[1:-1] * dlogh, linewidth=3, label="$t=${:.2f}".format(t[idx]))
+ax.plot(X[1:-1], 2.0 * K[1:-1] * tanh, linewidth=3, label="IS ($A_0 =${:.1f})".format(A0),
+        color="k", linestyle="--")
 ax.set_xlabel('$x$ (au)', fontsize=20)
 ax.set_ylabel('$2 \\kappa(x) \\partial_x \\log h(x,t)$', fontsize=20)
 ax.tick_params(axis='x', labelsize=20)
@@ -67,6 +74,6 @@ ax.tick_params(axis='y', labelsize=20)
 ax.set_xlim(-12.0,3.0)
 ax.legend(fontsize=20)
 
-plt.savefig("likelihood_drift_slices.png")
+plt.savefig("dsa_results/likelihood_drift_slices.png")
 plt.show()
 plt.close(fig)
