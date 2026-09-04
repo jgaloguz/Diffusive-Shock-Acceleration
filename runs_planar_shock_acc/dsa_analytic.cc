@@ -6,42 +6,6 @@
 
 using namespace Spectrum;
 
-// Phase-space density upstream
-inline double N1(double z, double p, double t)
-{
-   double a = pow(p0 / p, beta);
-   double b = 2.0 * z / (tau * U_up);
-   double c = sqrt(t / tau);
-   double d = 0.5 * beta / c * log(p / p0) - z / (sqrt(t * tau) * U_up);
-   return amp * sqrt(Cube(p0 / p)) * exp(U_up * z / (2.0 * kappa_up)) * (exp(b) * erfc(d - c) * a + exp(-b) * erfc(d + c) / a);
-};
-
-// Phase-space density downstream
-inline double N2(double z, double p, double t)
-{
-   double a = pow(p0 / p, beta);
-   double b = 2.0 * z / (tau * U_dn);
-   double c = sqrt(t / tau);
-   double d = 0.5 * beta / c * log(p / p0) + z / (sqrt(t * tau) * U_dn);
-   return amp * sqrt(Cube(p0 / p)) * exp(U_dn * z / (2.0 * kappa_dn)) * (exp(-b) * erfc(d - c) * a + exp(b) * erfc(d + c) / a);
-};
-
-// Phase-space density upstream AND downstream
-inline double N12(double z, double p, double t)
-{
-   if (z < 0.0) return N1(z, p, t);
-   else return N2(z, p, t);
-};
-
-// Integral in momentum
-inline double MomentumIntegral(double z, double t)
-{
-   int i;
-   double S = 0.0;
-   for (i = 0; i < Np; i++) S += N12(z, p_arr[i], t) * Sqr(p_arr[i]) * dp_arr[i];
-   return S * M_4PI;
-};
-
 int main(int argc, char** argv)
 {
    int i, j, k;
@@ -57,6 +21,26 @@ int main(int argc, char** argv)
    std::cout << "t_final = " << t_arr[Nt-1] / one_day << " days" << std::endl;
    std::cout << "min dt_adv = " << w_sh / (U_up + (kappa_up - kappa_dn) / w_sh) / one_day << " days" << std::endl;
    std::cout << "max dt_dif = " << Sqr(w_sh) / kappa_dn << " days" << std::endl;
+
+   std::cout << std::endl;
+   std::cout << "========================================" << std::endl;
+   std::cout << "Dimensionless parameters:" << std::endl;
+   std::cout << "u1 = " << U_up << std::endl;
+   std::cout << "u2 = " << U_dn << std::endl;
+   std::cout << "kappa1 = " << kappa_up << std::endl;
+   std::cout << "Lsh = " << w_sh << std::endl;
+   std::cout << "p0 = " << p0 << std::endl;
+   std::cout << "alpha = " << alpha << std::endl;
+   std::cout << "alpha-r_max slopes:" << std::endl;
+   std::cout << "    (n_s = 1.25) " << log10(1.25) / log10(pf / p0) << std::endl;
+   std::cout << "    (n_s = 1.50) " << log10(1.5) / log10(pf / p0) << std::endl;
+   std::cout << "    (n_s = 1.75) " << log10(1.75) / log10(pf / p0) << std::endl;
+   std::cout << "    (n_s = 2.00) " << log10(2.0) / log10(pf / p0) << std::endl;
+   std::cout << "t1 = " << t_arr[0] << std::endl;
+   std::cout << "t2 = " << t_arr[1] << std::endl;
+   std::cout << "t3 = " << t_arr[2] << std::endl;
+   std::cout << "t4 = " << t_arr[3] << std::endl;
+   std::cout << "========================================" << std::endl;
 
 // Loop over times
    dsa_analytic_file.open("dsa_results/dsa_forward_path_dens_pp_analytic.dat");
@@ -90,12 +74,6 @@ int main(int argc, char** argv)
    dsa_analytic_file.open("dsa_results/dsa_analytic_enr.dat");
    for (k = 0; k < Np; k++) dsa_analytic_file << std::setw(16) << EnrKin(p_arr[k], specie) / one_MeV << std::endl;
    dsa_analytic_file.close();
-
-// Output useful quantities for enhanced sampling methods
-   std::cout << std::setprecision(12);
-   std::cout << "alpha = "
-             << n_thrs * log(n_chld * p_chld + (n_chld - 1) * (1.0 - p_chld)) / log(pf / p0)
-             << std::endl;
 
    return 0;
 };

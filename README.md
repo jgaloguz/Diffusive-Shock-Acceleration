@@ -2,7 +2,7 @@
 
 # Diffusive Shock Acceleration
 
-This is a specialization of the SPECTRUM software applied to modeling diffusive shock acceleration. Specifically, the codes in this repository simulate the acceleration of test-particles in the presence of a planar or spherical shock for a variety of diffusion profiles using stochastic methods, analyze the results, and generate useful figures for a future scientific publication. In addition, both forward and backward time-flow-direction approaches are used to solve the relevant equations so their results can be compared and their relative advantages or disadvantes explored.
+This is a specialization of the SPECTRUM software applied to modeling diffusive shock acceleration. Specifically, the codes in this repository simulate the acceleration of test-particles in the presence of a planar or spherical shock for a variety of diffusion profiles using stochastic methods, analyze the results, and generate useful figures for a future scientific publication. In addition, both forward and backward time-flow-direction approaches are used to solve the relevant equations so their results can be compared and their relative advantages or disadvantages explored.
 
 ## Using the code
 
@@ -35,6 +35,9 @@ Here are some notes on the differences between the codes.
  - In the case of a planar shock, the diffusion coefficient is proportional to the square of the flow speed everywhere. In the spherical shock, this is only true within the shock and the downstream region, with the upstream having a diffusion coefficient that is proportional to the radial coordinate.
  - The planar shock has a constant flow speed on both sides with the downstream speed equaling the upstream speed divided by the shock strength, with a hyperbolic tangent transition between them. In the spherical shock, the radial speed is constant upstream and decreases with the square of the radial coordinate downstream, with a hyperbolic tangent transition as well.
 
+The folder `runs_planar_shock_acc` contains codes to test several enhanced sampling/variance reduction schemes, like particle splitting and importance sampling, which generally lead to performance acceleration in some sense.
+Configuration for these codes is achieved with the same instructions as for the standard planar shock and is only compatible with the forward time flow direction.
+
 **Analytic Solutions**
 
 To obtain analytic results, compile and run the code using
@@ -47,7 +50,7 @@ Note that some important information regarding the shock or simulation parameter
 **Forward-in-time Simulations**
 
 For forward-in-time simulations, configure the code using the `forward` option.
-Compile and run the code using
+For regular planar or spherical runs, compile and run the code using
 ```
 make dsa_forward
 mpirun -np <N> dsa_forward <number-of-trajectories> <batch-size>
@@ -60,9 +63,30 @@ make dsa_forward_postprocess
 ```
 This command will post-process the results for all time, spatial, and momentum bins, since a single forward-in-time simulation, provided high enough statistics, will approximate the momentum spectrum at all times and all spatial locations.
 
+For the planar runs with enhanced sampling, located in `runs_planar_shock_acc`, the type of enhanced sampling scheme used is manually configured through the macros in `dsa_common.hh`.
+Specifically, these are `ENABLE_SPLITTING`, `ENABLE_IMP_SAMP`, and `LIKELIHOOD_TEST`.
+Once the desired macros have been toggled, compilation and running is done via
+```
+make dsa_forward_acc
+mpirun -np <N> dsa_forward_acc <number-of-trajectories-per-processor>
+```
+
+If no macros are defined, the code runs without enhanced sampling.
+`ENABLE_SPLITTING` one enables the particle splitting scheme, with a value of `0` being continuous splitting, and `1` splitting using discrete thresholds (see list of parameters below).
+`ENABLE_IMP_SAMP` enables importance sampling, with `0` using a scheme equivalent to particle splitting and `1` using an analytic, time-dependent formula devised by Prinsloo (2020).
+Note that a value of `0` for `ENABLE_IMP_SAMP` requires pre-computation of the likelihood function, achieved with
+```
+python feynman_kac_solver.py
+```
+and the `alpha` variable (line 21) in this Python script must match the splitting strength (parameter 18) used for the stochastic run.
+Finally, `LIKELIHOOD_TEST` enables a reweighing procedure of the base (no enhanced sampling) method for testing purposes.
+Note that **at most** one of these macros can be defined for proper code execution.
+
+
 **Backward-in-time Simulations**
 
 Similarly, for backward-in-time simulations, configure the code using the `backward` option.
+The enhanced sampling runs are not available in this mode.
 Compile and run the code using
 ```
 make dsa_backward
@@ -111,15 +135,18 @@ The units are mentioned within parentheses.
  - *Parameter 15*: upper bound of spatial/radius range (au).
  - *Parameter 16*: lower bound of temporal range (day).
  - *Parameter 17*: upper bound of temporal range (day).
+ - *Parameter 18*: splitting strength in continuous particle splitting scheme and equivalent importance sampling scheme. **Used only in enhanced sampling runs**
+ - *Parameter 19*: number of splitting thresholds in discrete particle splitting scheme. **Used only in enhanced sampling runs**
+ - *Parameter 20*: strength of artificial drift in importance sampling scheme. **Used only in enhanced sampling runs**
 
- Note that the default binning resolutions of the momentum, spatial, and temporal ranges are 100, 100, and 5 bins respectively.
+ Note that the default binning resolutions of the momentum, spatial, and temporal ranges are 1000, 100, and 5 bins respectively.
  These do not affect the physics or the execution time, and should be the same across all runs for a fair comparison.
  They can be manually changed in the `dsa_common.hh` file prior to compilation.
 
 **Plotting Results**
 
 All results are stored in the `runs/dsa_results` folder.
-They can be visualized by running a Python script
+For regular planar and spherical shock simulations, results can be visualized by running a Python script
 ```
 python dsa_plots.py <Nt1> <Nt2> <which-variables> <which-time-flow-direction>
 ```
@@ -128,6 +155,15 @@ In particular, setting `<Nt1> = 0` and `<Nt2> = 5` will plot all the available r
 Using `<which-variables> = none` will only plot the analytic results (which are always plotted).
 Using `<which-variables> = pos` will add the number density (spectrum integrated over momentum) vs space plots in the top panel, `<which-variables> = mom` will add the spectrum vs momentum plots at the location indicated by *Parameter 4* in the bottom panel, and `<which-variables> = both` will add both.
 Finally, setting `<which-time-flow-direction> = forward` will plot the results from the forward-in-time runs, while setting `<which-time-flow-direction> = backward` will plot the results from the backward-in-time runs.
+
+For the planar runs with enhanced sampling, located in `runs_planar_shock_acc`, there are several other plotting scripts.
+`dsa_plot_heatmaps.py` shows the path density for each type of run, specified with the `--method` flag.
+`dsa_plot_one_count_limit.py` illustrates the one-count-limit of the base method.
+`dsa_plot_performance_comparison.py` plots the computed spectrum, normalized variance, and cost metric for a series of runs with a certain variance reduction scheme.
+It also reports the maximum acceleration achieved by each run relative to the base method.
+`dsa_plot_splitting_discretization_comparison.py` plots the spatial density (path density integrated over momentum) for continuous splitting and four equivalent discrete splitting schemes with an equivalent splitting strength.
+`dsa_plot_splitting_likelihood_comparison.py` plots the spatial density for a variety of methods, illustrating the correctness of the continuous splitting scheme and its equivalence with a specific importance sampling scheme.
+`dsa_plot_spectrum_comparison.py` plots the computed spectrum near the shock for the base method and one example from each of the variance reduction techniques available.
 
 ## Important note
 
