@@ -149,7 +149,7 @@ int main(int argc, char** argv)
    double distro_err_out[Np] = {0.0};
 
 // Compute phase-space integral of interest for e^2 metric
-   double H1;
+   double H1[Np] = {0.0};
    double H[Np] = {0.0};
    double Hh[Np] = {0.0};
    double Hh_out[Np] = {0.0};
@@ -282,6 +282,7 @@ int main(int argc, char** argv)
          p[0] = p0;
          p_level = -1;
          lnw = 0.0;
+         std::memset(H1, 0, sizeof(H1));
 // History arrays
          t_hist.clear();
          x_hist.clear();
@@ -361,16 +362,13 @@ int main(int argc, char** argv)
       k = (log10(p[0]) - logp0) / dlogp;
       if (z1 < x[0] && x[0] < z2 && k < Np) {
          distro[k] += exp(lnw);
-         H1 = Qtf * exp(lnw) / A(tf, x[0], p[0]);
-      }
-      else H1 = 0.0;
-      for (i = 0; i < fmin(k+1,Np); i++) {
-         Hh[i] += H1;
-         e2[i] += Sqr((H1 - H[i]) / H[i]);
+         for (i = 0; i < k+1; i++) H1[i] += Qtf * exp(lnw) / A(tf, x[0], p[0]);
       };
-      for (i = k+1; i < Np; i++) {
-         Hh[i] += 0.0;
-         e2[i] += 1.0;
+      if (!child) {
+         for (i = 0; i < Np; i++) {
+            Hh[i] += H1[i];
+            e2[i] += Sqr((H1[i] - H[i]) / H[i]);
+         };
       };
 // Tally total number of steps
       n_steps += n_steps_traj;
