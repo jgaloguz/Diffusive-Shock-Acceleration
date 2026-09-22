@@ -9,6 +9,7 @@ x = np.loadtxt("dsa_results/dsa_analytic_pos.dat")
 E = np.loadtxt("dsa_results/dsa_analytic_enr.dat")
 Nz = np.size(x)
 Np = np.size(E)
+conv = 1.0 / 2.99792414e4 # conversion to physical units
 
 filename = [
             "dsa_results/spectrum_comparison/dsa_forward_mom_pp_base.dat",
@@ -19,11 +20,11 @@ filename = [
            ]
 
 label = [
-         "base method",
+         "direct integration",
          "continuous splitting",
          "discrete splitting",
-         "importance sampling splitting",
-         "importance sampling Prinsloo",
+         "splitting-matched importance sampling",
+         "shock-directed importance sampler",
         ]
 
 exec_times = np.loadtxt("dsa_results/spectrum_comparison/time_stats.dat")
@@ -46,11 +47,11 @@ fig = plt.figure(figsize=(15, 10), layout='tight')
 ax = fig.add_subplot(111, projection='rectilinear')
 
 for run in range(n_cases):
-   ax.loglog(E, numerical_t3[run], linewidth=0, marker=marker[run], markersize=7, label=label[run]+" ({:.2f} $\\pm$ {:.2f})".format(exec_times[run,0], exec_times[run,1]))
-ax.loglog(E, analytic_t3, linewidth=5, label="analytic")
+   ax.loglog(E, conv * numerical_t3[run], linewidth=0, marker=marker[run], markersize=7, label=label[run])
+ax.loglog(E, conv * analytic_t3, linewidth=5, label="analytic")
 
 ax.set_xlabel('$E$ (MeV)', fontsize=24)
-ax.set_ylabel('$F$ (particles cm$^{-3}$ MeV$^{-1}$)', fontsize=24)
+ax.set_ylabel('$F$ (particles cm$^{-3}$ (MeV/c)$^{-1}$)', fontsize=24)
 ax.tick_params(axis='x', labelsize=24)
 ax.tick_params(axis='y', labelsize=24)
 ax.legend(loc=3, fontsize=20)

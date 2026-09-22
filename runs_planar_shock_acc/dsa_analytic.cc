@@ -70,9 +70,13 @@ int main(int argc, char** argv)
    dsa_analytic_file.open("dsa_results/dsa_analytic_dmom.dat");
    for (k = 0; k < Np; k++) dsa_analytic_file << std::setw(16) << dp_arr[k] / p0 << std::endl;
    dsa_analytic_file.close();
-// Output kinetic energy grid
+// Output kinetic energy grid (bin centers)
    dsa_analytic_file.open("dsa_results/dsa_analytic_enr.dat");
    for (k = 0; k < Np; k++) dsa_analytic_file << std::setw(16) << EnrKin(p_arr[k], specie) / one_MeV << std::endl;
+   dsa_analytic_file.close();
+// Output kinetic energy grid (left-bound for bins)
+   dsa_analytic_file.open("dsa_results/dsa_analytic_enr_left.dat");
+   for (k = 0; k < Np; k++) dsa_analytic_file << std::setw(16) << EnrKin(p_arr_edges[k], specie) / one_MeV << std::endl;
    dsa_analytic_file.close();
 
    return 0;
