@@ -165,6 +165,9 @@ It also reports the maximum acceleration achieved by each run relative to the ba
 `dsa_plot_splitting_likelihood_comparison.py` plots the spatial density for a variety of methods, illustrating the correctness of the continuous splitting scheme and its equivalence with a specific importance sampling scheme.
 `dsa_plot_spectrum_comparison.py` plots the computed spectrum near the shock for the base method and one example from each of the variance reduction techniques available.
 
+In particular, results, plotting scripts, and figures for a publication in Computer Physics Communications can be found in the `CPC_paper_figures` directory.
+Consult the README.md file in that folder for more information.
+
 ## Important note
 
 **This is NOT the official SPECTRUM repository.** For information about SPECTRUM, go to https://github.com/vflorins/SPECTRUM.

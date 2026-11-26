@@ -1,0 +1,19 @@
+Number of CPUs: 128
+Number of trajectories per CPU: 1000
+
+1000
+900
+800
+700
+600
+500
+400
+300
+200
+100
+
+IMP. SAMP. 1
+
+real	0m9.883s
+user	15m33.491s
+sys	1m28.632s

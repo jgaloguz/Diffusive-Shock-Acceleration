@@ -1,0 +1,20 @@
+Number of CPUs: 128
+Number of trajectories per CPU: 1000
+Reading likelihood from file:dsa_results/feynman_kac/dsa_likelihood_alpha=.dat
+
+1000
+900
+800
+700
+600
+500
+400
+300
+200
+100
+
+IMP. SAMP. 0
+
+real	1m56.906s
+user	212m58.717s
+sys	31m8.980s

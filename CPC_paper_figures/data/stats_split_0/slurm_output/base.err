@@ -1,0 +1,19 @@
+Number of CPUs: 128
+Number of trajectories per CPU: 1000
+
+1000
+900
+800
+700
+600
+500
+400
+300
+200
+100
+
+BASE METHOD
+
+real	0m24.489s
+user	19m50.209s
+sys	25m13.372s

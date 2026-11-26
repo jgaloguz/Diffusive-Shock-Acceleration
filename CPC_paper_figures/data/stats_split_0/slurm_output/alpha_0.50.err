@@ -1,0 +1,24 @@
+Number of CPUs: 128
+Number of trajectories per CPU: 1000
+
+1000
+1000
+1000
+900
+800
+800
+800
+700
+600
+500
+400
+400
+300
+200
+100
+
+PART. SPLIT. 0
+
+real	0m31.723s
+user	34m55.711s
+sys	25m36.908s
